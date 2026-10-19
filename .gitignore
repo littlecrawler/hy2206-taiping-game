@@ -1,0 +1,12 @@
+# Local research snapshots and verification artifacts
+/references/
+/qa/
+
+# Local dependencies, environment settings, and logs
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3f0e7">
+  <meta name="description" content="An offline classroom strategy game about the Taiping Rebellion, based on the HY2206 group's maps and proposal.">
+  <title>The Taiping Rebellion — HY2206 Campaign Table</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="data.js"></script>
+  <script defer src="engine.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="icon-move" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6M4 6v12"/></symbol>
+      <symbol id="icon-attack" viewBox="0 0 24 24"><path d="m4 3 15 15m-3 2 4-4M3 4l4 1-2 2-1-4Zm16-1L4 18m-1-3 6 6M20 4l-1 4-3-3 4-1Z"/></symbol>
+      <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M5 21V3m0 1c5-4 9 4 14 0v10c-5 4-9-4-14 0"/></symbol>
+      <symbol id="icon-recruit" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-4a6 6 0 0 1 12 0v4m4-13v8m-4-4h8"/></symbol>
+      <symbol id="icon-fort" viewBox="0 0 24 24"><path d="M3 21V6h4v4h3V6h4v4h3V6h4v15H3Zm6 0v-6h6v6"/></symbol>
+      <symbol id="icon-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9h6v6H9z"/></symbol>
+      <symbol id="icon-book" viewBox="0 0 24 24"><path d="M12 5c-3-2-6-2-10-1v15c4-1 7-1 10 1 3-2 6-2 10-1V4c-4-1-7-1-10 1v15"/></symbol>
+      <symbol id="icon-expand" viewBox="0 0 24 24"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></symbol>
+      <symbol id="icon-undo" viewBox="0 0 24 24"><path d="m8 3-6 6 6 6M2 9h11a8 8 0 0 1 8 8v4"/></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-5-5 5 5-5 5"/></symbol>
+      <symbol id="icon-map" viewBox="0 0 24 24"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Zm6-2v16m6-14v16"/></symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
+    </defs>
+  </svg>
+  <div class="app-shell">
+    <header class="masthead">
+      <div class="brand">
+        <div class="seal" aria-hidden="true"><span>太平</span><span>天国</span></div>
+        <div><p class="eyebrow">HY2206 <span> / </span> THE CAMPAIGN TABLE</p><h1>The Taiping Rebellion</h1><p class="brand-sub">1853–1864 · Two sides. Three fronts. An uncertain future.</p></div>
+      </div>
+      <nav class="main-nav" aria-label="Classroom tools">
+        <button class="quiet-button" data-open="rules"><svg class="icon"><use href="#icon-book"/></svg>How to play</button>
+        <button class="quiet-button" data-open="atlas"><svg class="icon"><use href="#icon-map"/></svg>Historical atlas</button>
+        <button class="quiet-button" data-open="debrief">Debrief</button>
+        <button class="icon-button" id="fullscreen" aria-label="Toggle fullscreen" title="Fullscreen for projection"><svg class="icon"><use href="#icon-expand"/></svg></button>
+        <button class="icon-button" data-open="settings" aria-label="Campaign settings and save tools" title="Campaign settings and save tools"><svg class="icon"><use href="#icon-settings"/></svg></button>
+      </nav>
+    </header>
+    <section class="campaign-strip" aria-label="Campaign year and turn">
+      <div class="year-block"><span class="eyebrow">CAMPAIGN YEAR</span><div id="year-number">1853</div></div>
+      <div class="chronology"><div class="chronology-heading"><span class="eyebrow">THE ROAD TO 1864</span><button class="text-button" data-open="timeline">Explore the chronology <span aria-hidden="true">↗</span></button></div><div id="year-track" class="year-track"></div></div>
+      <div id="turn-status" class="turn-status"></div>
+    </section>
+    <div class="instruction-line"><span class="instruction-number">01</span> Select your army <span class="instruction-divider">/</span><span class="instruction-number">02</span> Choose a connected city <span class="instruction-divider">/</span><span class="instruction-number">03</span> Spend up to 3 action points <span class="offline-note"><i></i> Ready for offline play</span></div>
+    <main class="campaign-layout">
+      <aside class="forces-column" aria-label="Factions and armies">
+        <div class="section-heading"><h2>The two sides</h2><span>OPEN INFORMATION</span></div>
+        <div id="forces"></div>
+        <div class="objective-card"><span class="eyebrow">THE OBJECTIVE</span><h3>Take the opposing capital.</h3><p>Taiping advances on <b>Beijing 北京</b>.<br>Qing advances on <b>Tianjing 天京</b>.</p><p class="small muted">Neither capital taken by the end of 1864? The game ends in a stalemate.</p></div>
+        <button class="undo-button" id="undo" disabled><svg class="icon"><use href="#icon-undo"/></svg>Undo last step</button>
+      </aside>
+      <section class="map-panel" aria-labelledby="map-title">
+        <div class="map-heading"><div><p class="eyebrow">THE STRATEGIC THEATRE</p><h2 id="map-title">Choose your front.</h2></div><span class="map-edition">ATLAS No. 01<br><b>CHINA · 1853</b></span></div>
+        <div class="route-tabs" role="group" aria-label="Highlight a strategic route">
+          <button data-route="all" class="active">All routes</button><button data-route="north"><i class="route-dot north"></i>North</button><button data-route="west"><i class="route-dot west"></i>West</button><button data-route="east"><i class="route-dot east"></i>East</button>
+        </div>
+        <div class="map-canvas">
+          <svg id="campaign-map" viewBox="285 75 495 625" role="group" aria-label="Interactive campaign map. Select a named city to plan an action."></svg>
+          <div class="compass" aria-hidden="true"><span>N</span><svg viewBox="0 0 30 45"><path d="M15 3 25 37 15 30 5 37Z" fill="currentColor"/><path d="M15 3v27L5 37Z" fill="#f3f0e7"/></svg></div>
+          <div class="map-controls"><button id="zoom-out" aria-label="Zoom out on map">−</button><button id="zoom-fit" aria-label="Fit strategic theatre">Fit</button><button id="zoom-in" aria-label="Zoom in on selected city">+</button></div>
+        </div>
+        <div class="map-legend"><span><i class="owner-dot taiping"></i>Taiping</span><span><i class="owner-dot qing"></i>Qing</span><span><i class="owner-dot neutral"></i>Neutral</span><span>☆ Capital</span><span class="strength-key">6 <span>Army strength</span></span></div>
+        <p class="map-caption">Historical atlas · early phase (1851–1856). Coloured nodes show <b>game control</b>; printed shading shows historical territory. Connections are simplified.</p>
+      </section>
+      <aside class="operations-column" aria-label="Events and actions">
+        <section class="event-card" id="event-card"></section>
+        <section class="orders-card">
+          <div class="section-heading"><h2>Your orders</h2><span id="ap-label"></span></div>
+          <div id="selection"></div>
+          <div id="actions" class="action-list"></div>
+          <div id="action-hint" class="action-hint" aria-live="polite"></div>
+          <button class="primary-button end-turn" id="end-turn"></button>
+        </section>
+        <button class="discussion-timer" id="timer"><svg class="icon"><use href="#icon-clock"/></svg><span id="timer-label">Start a 60-second discussion</span><span class="timer-status" id="timer-status">60s</span></button>
+      </aside>
+    </main>
+    <section class="journal" aria-label="Recent campaign activity">
+      <div class="section-heading"><h2>Dispatches from the field</h2><button class="text-button" data-open="journal">Full campaign log ↗</button></div><div id="recent-log"></div>
+    </section>
+    <footer class="page-footer"><span>HY2206 learning activity · Strategy, resources and historical explanation</span><button class="text-button" data-open="sources">Sources &amp; modelling choices ↗</button></footer>
+    <noscript>This game needs JavaScript enabled. Open this local file in a current browser.</noscript>
+  </div>
+  <dialog id="modal" aria-labelledby="modal-title"><div class="dialog-top"><span class="eyebrow" id="modal-kicker">THE CAMPAIGN TABLE</span><button class="icon-button close-modal" aria-label="Close dialog">×</button></div><div id="modal-body"></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
