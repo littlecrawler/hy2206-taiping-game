@@ -18,4 +18,6 @@ for (const name of ["data.js", "engine.js", "app.js"]) {
 }
 html = html.replace("</body>", "<script>\n" + scripts.join("\n") + "\n</script>\n</body>");
 await writeFile(resolve(root, "Taiping-Classroom.html"), html, "utf8");
+await writeFile(resolve(root, "index.html"), html, "utf8");
 console.log("Standalone classroom game: " + resolve(root, "Taiping-Classroom.html"));
+console.log("GitHub Pages homepage: " + resolve(root, "index.html"));

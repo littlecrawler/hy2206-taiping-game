@@ -1,0 +1,104 @@
+# The Taiping Rebellion — HY2206 Campaign Table
+
+[English](README.md) | **简体中文**
+
+课堂投屏用的双阵营策略游戏。英文界面、规则及历史事件说明；所有可玩地名同时提供英文和中文。
+
+## 打开方式
+
+推荐直接双击本文件夹中的 **Taiping-Classroom.html**。这是包含两张地图的单文件离线版；复制这一个文件到课堂电脑即可使用。
+
+dist/index.html 是便于后续编辑的分文件版本，也可以直接双击。地图、规则和游戏逻辑均在本地，不需要安装依赖或连接网络；分文件版本请连同整个 dist 文件夹一起复制。
+
+如果希望通过本地网址预览，在本文件夹运行：
+
+    node preview.mjs
+
+打开终端显示的本地网址，默认 http://127.0.0.1:8766。按 Ctrl+C 停止预览。如果端口占用，可运行 node preview.mjs 8767。课堂离线使用不需要运行服务器。
+
+## GitHub Pages
+
+仓库根目录的 **index.html** 是游戏首页，内容与 Taiping-Classroom.html 相同。.nojekyll 文件让 GitHub Pages 直接发布这些静态文件。
+
+1. 将根目录的 index.html 和 .nojekyll 提交并推送到 main 分支。
+2. 打开仓库的 **Settings → Pages**。
+3. 在 **Build and deployment** 中，将 **Source** 设为 **Deploy from a branch**。
+4. 选择 **main** 和 **/(root)**，点击 **Save**。
+5. 部署完成后，点击 **Visit site** 打开游戏。
+
+可参考 [GitHub Pages 官方设置说明](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)。
+
+## 课堂操作
+
+1. 同学分为 Taiping / Qing 两组，由主持人在同一电脑操作。游戏没有自动对手。
+2. 在左侧选当前阵营的军队，在地图上选城市，再在右侧执行亮起的行动。
+3. 每方每年共享 3 AP；可以分配给两支军队，也可以提前结束回合。
+4. 攻城会先显示双方兵力与修正；点击 **Roll & resolve battle** 才扣费、掷骰并结算。
+5. 双方行动结束后进入下一年，显示历史事件；1856 年需要太平天国作出选择。
+6. 用 **Debrief** 将游戏经历与真实历史比较。**Historical atlas** 可查看两张原始地图。
+
+投屏可使用右上角全屏按钮。网页包括 60 秒讨论计时器、撤销及完整行动记录。可以在任何年份打开 Debrief，不需要为了走完所有回合压缩历史讨论；建议预演后设置课堂活动的时间上限。
+
+## 保存与恢复
+
+游戏状态保存在当前标签页的内存中。刷新或关闭页面会丢失进度。
+
+在右上角设置中选择 **Save / restore text**，把存档文本复制到自己的笔记。以后粘贴回来并点击 **Restore this text** 即可继续。此版本不会自动写入浏览器持久存储或下载文件。存档包含骰子序列；撤销并重复同一战斗不会得到不同的骰子。
+
+## 与讨论稿需要核对的部分
+
+详细开局设定是 1853 年，结束于 1864 年，因此本版为 **12 个年度回合（双方共 24 个阵营回合）**。原讨论稿总览的“14 turns”仍需小组统一。
+
+本版保留讨论稿的初始资金、军队兵力、主要路线、行动消耗、收入上限和年度事件。为使游戏完整可玩，补充了以下规则，并已在网页 **Sources & modelling choices** 中逐项说明：
+
+- 初始城市归属：Taiping 为 Tianjing、Anqing；Qing 为 Beijing、Changsha、Jiangnan Camp、Shanghai；其余中立。这是游戏开局配置，不是完整的 1853 年历史疆域复原。
+- 两座首都各有 4 点静态防御；Shanghai 有 2 点；其他城市为 0。加固每次 +2，上限 8。
+- 撤退自动寻找经非敌方城市可到达的最近己方城市，不另扣行动点或资金。无路可退则溃散。
+- 兵力为 0 的军队在己方首都重整，须先征兵再行动。
+- 同城防守部队兵力合并，守方战损先扣兵力最多的军队，再扣城市防御。
+- 一次性事件在新年开始触发；战斗加成仅在对应年份有效。
+- 1853 年使用初始资金，不额外领取收入；1854 年起按“历史事件 → 可选随机事件 → 双方收入”结算。
+- 1864 年清方回合结束仍无人攻下对方首都则平局。
+- 随机事件默认关闭，可在新游戏前启用。随机事件是游戏假设，不是对应年份的史实断言。
+
+军队名称代表相关部队，不意味着该领袖本人按游戏路线移动或持续指挥。游戏无法完整表现宗教、族群暴力、平民处境、社会动员和战争的人道代价；复盘问题专门保留了这些讨论。
+
+**课堂平衡性待确认：** 当前规则允许早期结束。例如太平军在 1853 年离开天京北上、没有留下驻军时，清军可能当年攻下天京。不要假定每次游戏都能经历所有年度事件。小组可以保留短局并在赛后使用独立年表讲解后期历史，或在试玩后另行调整首都防御、初始驻军和补给规则；本版没有擅自取消“攻下首都即获胜”的原案条件。
+
+## 材料与历史来源
+
+- 两张原始 JPG 保留在本文件夹根目录；网页副本放在 dist/assets/。
+- references/group-proposal-snapshot.txt 是 2026-10-19 读取的讨论文档快照，便于对照实现；未修改 Google Doc。references 文件夹已从 Git 中排除。
+- 事件年表依照小组研究稿，不应视为已经完成独立史料核查的最终讲稿。
+- 网页提供 Office of the Historian 的 1864 年外交史料与 National Army Museum 的第二次鸦片战争背景材料。外交史料保留其当时立场，不能直接当作中立叙述。
+- 原始地图的出版物、作者和页码尚未随文件提供，正式展示时应由小组补全引用。
+
+## 文件结构
+
+    tP/
+      index.html             GitHub Pages 游戏首页
+      .nojekyll              直接发布静态文件
+      Taiping-Classroom.html  推荐课堂使用的单文件离线版
+      dist/
+        index.html       页面入口，直接双击
+        style.css        视觉样式和响应式布局
+        data.js          城市、路线、人物、事件文案
+        engine.js        回合、资源、战斗及存档校验
+        app.js           界面交互
+        assets/          两张地图的网页副本
+      references/        讨论稿快照
+      tests/             游戏规则测试
+      preview.mjs        可选本地预览
+      build-standalone.mjs  从 dist 生成离线版和 Pages 首页
+      README.md          默认英文说明
+      README.zh-CN.md    中文说明
+
+检查游戏逻辑：
+
+    node --test tests/engine.test.cjs
+
+修改 dist 的源文件后，同时重新生成课堂单文件版和 GitHub Pages 首页：
+
+    node build-standalone.mjs
+
+所有项目文件均保存在本项目文件夹内。

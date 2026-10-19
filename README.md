@@ -1,87 +1,108 @@
 # The Taiping Rebellion — HY2206 Campaign Table
 
-课堂投屏用的双阵营策略游戏。英文界面、规则及历史事件说明；所有可玩地名同时提供英文和中文。
+**English** | [简体中文](README.zh-CN.md)
 
-## 打开方式
+A strategy game about the Taiping Rebellion for a classroom activity with two teams and one shared screen. The interface, rules and historical event explanations are in English. Every playable city has both an English and a Chinese label.
 
-推荐直接双击本文件夹中的 **Taiping-Classroom.html**。这是包含两张地图的单文件离线版；复制这一个文件到课堂电脑即可使用。
+## Getting started
 
-dist/index.html 是便于后续编辑的分文件版本，也可以直接双击。地图、规则和游戏逻辑均在本地，不需要安装依赖或连接网络；分文件版本请连同整个 dist 文件夹一起复制。
+For offline classroom use, open **Taiping-Classroom.html** in your browser. This single file includes both maps; copying it to another computer is enough to play.
 
-如果希望通过本地网址预览，在本文件夹运行：
+The files in dist/ provide the version for editing. You can also open dist/index.html directly; copy the entire dist folder when transferring this version to another computer.
+
+The game needs no installation or internet connection. The optional preview, verification and build commands below require Node.js.
+
+To preview the game at a local address, run this command from the project directory:
 
     node preview.mjs
 
-打开终端显示的本地网址，默认 http://127.0.0.1:8766。按 Ctrl+C 停止预览。如果端口占用，可运行 node preview.mjs 8767。课堂离线使用不需要运行服务器。
+Open the address printed in the terminal, normally http://127.0.0.1:8766. Press Ctrl+C to stop the preview. If the port is busy, run node preview.mjs 8767. A preview server is optional for offline play.
 
-## 课堂操作
+## GitHub Pages
 
-1. 同学分为 Taiping / Qing 两组，由主持人在同一电脑操作。游戏没有自动对手。
-2. 在左侧选当前阵营的军队，在地图上选城市，再在右侧执行亮起的行动。
-3. 每方每年共享 3 AP；可以分配给两支军队，也可以提前结束回合。
-4. 攻城会先显示双方兵力与修正；点击 **Roll & resolve battle** 才扣费、掷骰并结算。
-5. 双方行动结束后进入下一年，显示历史事件；1856 年需要太平天国作出选择。
-6. 用 **Debrief** 将游戏经历与真实历史比较。**Historical atlas** 可查看两张原始地图。
+The repository's root **index.html** is the game homepage. It contains the same game as Taiping-Classroom.html. The .nojekyll file lets GitHub Pages serve the files directly.
 
-投屏可使用右上角全屏按钮。网页包括 60 秒讨论计时器、撤销及完整行动记录。可以在任何年份打开 Debrief，不需要为了走完所有回合压缩历史讨论；建议预演后设置课堂活动的时间上限。
+1. Commit and push the root index.html and .nojekyll files to the main branch.
+2. Open the repository's **Settings → Pages**.
+3. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+4. Select **main** and **/(root)**, then click **Save**.
+5. After deployment completes, click **Visit site** to open the game.
 
-## 保存与恢复
+See the [official GitHub Pages instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
-游戏状态保存在当前标签页的内存中。刷新或关闭页面会丢失进度。
+## Classroom play
 
-在右上角设置中选择 **Save / restore text**，把存档文本复制到自己的笔记。以后粘贴回来并点击 **Restore this text** 即可继续。此版本不会自动写入浏览器持久存储或下载文件。存档包含骰子序列；撤销并重复同一战斗不会得到不同的骰子。
+1. Divide the class into Taiping and Qing teams. A host operates the game on one computer. There is no automated opponent.
+2. Select an army from the active side on the left, select a city on the map, then choose an enabled action on the right.
+3. Each side shares 3 action points (AP) between its two armies each year. A side may end its turn early.
+4. Attacks first show both sides' forces and modifiers. Clicking **Roll & resolve battle** pays the cost, rolls the dice and resolves combat.
+5. After both sides finish, the game advances to the next year and displays its historical event. In 1856, the Taiping must choose a response to the Tianjing Incident.
+6. Open **Debrief** to compare your campaign with the historical outcome. **Historical atlas** shows both original maps.
 
-## 与讨论稿需要核对的部分
+Use the fullscreen button in the top-right corner for projection. The game also includes a 60-second discussion timer, undo and a campaign log. Debrief is available in any year; set a time limit after a rehearsal so that playing every round does not crowd out historical discussion.
 
-详细开局设定是 1853 年，结束于 1864 年，因此本版为 **12 个年度回合（双方共 24 个阵营回合）**。原讨论稿总览的“14 turns”仍需小组统一。
+## Saving and restoring
 
-本版保留讨论稿的初始资金、军队兵力、主要路线、行动消耗、收入上限和年度事件。为使游戏完整可玩，补充了以下规则，并已在网页 **Sources & modelling choices** 中逐项说明：
+The campaign is stored in the current tab's memory. Refreshing or closing the page clears the game.
 
-- 初始城市归属：Taiping 为 Tianjing、Anqing；Qing 为 Beijing、Changsha、Jiangnan Camp、Shanghai；其余中立。这是游戏开局配置，不是完整的 1853 年历史疆域复原。
-- 两座首都各有 4 点静态防御；Shanghai 有 2 点；其他城市为 0。加固每次 +2，上限 8。
-- 撤退自动寻找经非敌方城市可到达的最近己方城市，不另扣行动点或资金。无路可退则溃散。
-- 兵力为 0 的军队在己方首都重整，须先征兵再行动。
-- 同城防守部队兵力合并，守方战损先扣兵力最多的军队，再扣城市防御。
-- 一次性事件在新年开始触发；战斗加成仅在对应年份有效。
-- 1853 年使用初始资金，不额外领取收入；1854 年起按“历史事件 → 可选随机事件 → 双方收入”结算。
-- 1864 年清方回合结束仍无人攻下对方首都则平局。
-- 随机事件默认关闭，可在新游戏前启用。随机事件是游戏假设，不是对应年份的史实断言。
+Open settings in the top-right corner and choose **Save / restore text**. Copy the save text into your own notes. To resume, paste it back and click **Restore this text**.
 
-军队名称代表相关部队，不意味着该领袖本人按游戏路线移动或持续指挥。游戏无法完整表现宗教、族群暴力、平民处境、社会动员和战争的人道代价；复盘问题专门保留了这些讨论。
+This version does not automatically write persistent browser storage or download save files. Save text includes the dice sequence, so undoing and repeating the same battle produces the same dice results.
 
-**课堂平衡性待确认：** 当前规则允许早期结束。例如太平军在 1853 年离开天京北上、没有留下驻军时，清军可能当年攻下天京。不要假定每次游戏都能经历所有年度事件。小组可以保留短局并在赛后使用独立年表讲解后期历史，或在试玩后另行调整首都防御、初始驻军和补给规则；本版没有擅自取消“攻下首都即获胜”的原案条件。
+## Rules to confirm with the group
 
-## 材料与历史来源
+The detailed opening starts in 1853 and ends in 1864, giving **12 annual rounds, or 24 faction turns**. The proposal's overview also mentions “14 turns”; the group still needs to settle that discrepancy.
 
-- 两张原始 JPG 保留在本文件夹根目录；网页副本放在 dist/assets/。
-- references/group-proposal-snapshot.txt 是 2026-10-19 读取的讨论文档快照，便于对照实现；未修改 Google Doc。
-- 事件年表依照小组研究稿，不应视为已经完成独立史料核查的最终讲稿。
-- 网页提供 Office of the Historian 的 1864 年外交史料与 National Army Museum 的第二次鸦片战争背景材料。外交史料保留其当时立场，不能直接当作中立叙述。
-- 原始地图的出版物、作者和页码尚未随文件提供，正式展示时应由小组补全引用。
+This version keeps the proposal's starting resources, army strengths, main routes, action costs, income cap and annual events. The following clarifications make the game playable and are also explained under **Sources & modelling choices**:
 
-## 文件结构
+- **Starting control:** Taiping holds Tianjing and Anqing. Qing holds Beijing, Changsha, Jiangnan Camp and Shanghai. All other cities begin neutral. This is a game setup, not a complete reconstruction of territorial control in 1853.
+- **City defence:** both capitals start with 4 defence, Shanghai with 2 and other cities with 0. Fortifying adds 2, up to a maximum of 8.
+- **Retreat:** surviving defenders automatically retreat to the nearest reachable friendly city through non-hostile territory, without an AP or treasury cost. If no route exists, the army is routed.
+- **Routed armies:** a force with zero strength regroups at its friendly capital and must recruit before acting again.
+- **Combined defence:** defending armies in the same city combine their strength. Defender losses affect the strongest army first, followed by city defence.
+- **Event timing:** one-time events occur when the year begins. Combat bonuses apply only during the named year.
+- **Income:** 1853 uses the starting treasuries without an extra collection. From 1854 onward, the sequence is historical event → optional random event → income for both sides.
+- **Time limit:** if neither capital has fallen after Qing's 1864 turn, the game ends in a stalemate.
+- **Random events:** off by default and enabled before starting a new campaign. They are hypothetical game conditions, not claims about what happened in a particular year.
+
+Army names represent associated forces, not the named leader's literal movements or continued personal command. The model cannot fully represent religion, ethnic violence, civilian experience, social mobilisation or the human costs of war. The debrief includes questions about these omissions.
+
+**Classroom balance still needs testing.** An early ending is possible: if the Taiping leave Tianjing to advance north in 1853 without a garrison, Qing may capture the capital that year. A game may therefore finish before later events occur. The group can keep short games and use the separate chronology afterwards, or adjust capital defence, starting garrisons and supply rules after playtesting. This version retains the proposal's immediate victory for capturing the opposing capital.
+
+## Materials and historical sources
+
+- The two original JPG maps remain in the project root. Copies used by the editable webpage are in dist/assets/.
+- references/group-proposal-snapshot.txt is a local snapshot of the discussion document read on 2026-10-19, retained for comparison with the implementation. The Google Doc was not edited. The references folder is excluded from Git.
+- Event narratives follow the group's working research and should not be treated as a fully verified final teaching script.
+- The game links to an [1864 diplomatic source from the Office of the Historian](https://history.state.gov/historicaldocuments/frus1864p3/d433) and [National Army Museum material about the Second China War](https://www.nam.ac.uk/explore/second-china-war). The diplomatic correspondence expresses contemporary interests and should be read critically.
+- The original maps' publication, author and page details were not supplied. The group should complete those citations before presenting.
+
+## Project structure
 
     tP/
-      Taiping-Classroom.html  推荐课堂使用的单文件离线版
+      index.html             Game homepage for GitHub Pages
+      .nojekyll              Serve the static files directly
+      Taiping-Classroom.html Single file for offline classroom use
       dist/
-        index.html       页面入口，直接双击
-        style.css        视觉样式和响应式布局
-        data.js          城市、路线、人物、事件文案
-        engine.js        回合、资源、战斗及存档校验
-        app.js           界面交互
-        assets/          两张地图的网页副本
-      references/        讨论稿快照
-      tests/             游戏规则测试
-      preview.mjs        可选本地预览
-      build-standalone.mjs  从 dist 重新生成单文件版
-      README.md          本说明
+        index.html           Entry point for the editable version
+        style.css            Styles and responsive layout
+        data.js              Cities, routes, armies and event text
+        engine.js            Turns, resources, combat and save validation
+        app.js               Interface interactions
+        assets/              Copies of the two supplied maps
+      references/            Local proposal snapshot; excluded from Git
+      tests/                 Game-rule checks
+      preview.mjs            Optional local preview server
+      build-standalone.mjs   Generate the offline file and Pages homepage
+      README.md              English documentation, shown by default
+      README.zh-CN.md        Chinese documentation
 
-检查游戏逻辑：
+Check the game rules:
 
     node --test tests/engine.test.cjs
 
-修改 dist 的源文件后，重新生成课堂单文件版：
+After editing the source files in dist/, regenerate both the offline version and the GitHub Pages homepage:
 
     node build-standalone.mjs
 
-所有新增项目文件均在 D:\DASANSHANG\HY2206\tP 内。
+All project files are kept within the project directory.
