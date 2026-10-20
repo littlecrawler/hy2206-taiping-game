@@ -12,11 +12,11 @@ for (const phase of ["early", "late"]) {
 }
 html = html.replace('<link rel="stylesheet" href="style.css">', "<style>\n" + css + "\n</style>");
 const scripts = ['window.TAIPING_MAP_ASSETS = ' + JSON.stringify(maps) + ";"];
-for (const name of ["data.js", "engine.js", "app.js"]) {
+for (const name of ["data.js", "engine.js", "sound.js", "app.js"]) {
   scripts.push((await readFile(resolve(dist, name), "utf8")).replace(/<\/script/gi, "<\\/script"));
   html = html.replace('  <script defer src="' + name + '"></script>\n', "");
 }
-html = html.replace("</body>", "<script>\n" + scripts.join("\n") + "\n</script>\n</body>");
+html = html.replace("</body>", function () { return "<script>\n" + scripts.join("\n") + "\n</script>\n</body>"; });
 await writeFile(resolve(root, "Taiping-Classroom.html"), html, "utf8");
 await writeFile(resolve(root, "index.html"), html, "utf8");
 console.log("Standalone classroom game: " + resolve(root, "Taiping-Classroom.html"));

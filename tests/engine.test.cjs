@@ -24,12 +24,49 @@ function battleSetup(attackerStrength, defenderStrength) {
   state.armies.find(a => a.id === "imperial").strength = defenderStrength;
   return state;
 }
-test("opening matches proposal treasury, strengths and positions", () => {
+test("opening keeps the original forces and adds a small Beijing garrison", () => {
   const state = fresh();
   assert.deepEqual(state.treasury, { taiping: 12, qing: 15 });
-  assert.equal(E.strength(state, "taiping"), 10); assert.equal(E.strength(state, "qing"), 12);
+  assert.equal(E.strength(state, "taiping"), 10); assert.equal(E.strength(state, "qing"), 14);
   assert.equal(state.year, 1853); assert.equal(state.ap, 3);
   for (const [id, city] of [["hong","tianjing"],["shi","anqing"],["zeng","changsha"],["imperial","jiangnan"]]) assert.equal(E.armyById(state, id).city, city);
+  assert.equal(E.armyById(state, "beijing-guard").city, "beijing");
+  assert.equal(E.armyById(state, "beijing-guard").strength, 2);
+});
+
+test("the northern advance must pass through the added towns one step at a time", () => {
+  let state = fresh(); E.armyById(state, "hong").city = "kaifeng";
+  assert.equal(E.check(state, "move", "hong", "tianjin").ok, false);
+  state = act(state, "move", "hong", "huaiqing");
+  assert.equal(state.cities.huaiqing.owner, null);
+  state = act(state, "claim", "hong", "huaiqing");
+  assert.equal(E.income(state, "taiping"), 5);
+  state = act(state, "move", "hong", "linqing");
+  assert.equal(state.ap, 0);
+  state = E.endTurn(E.endTurn(state).state).state;
+  state = act(state, "move", "hong", "cangzhou");
+  state = act(state, "move", "hong", "tianjin");
+  assert.equal(E.battlePreview(state, "hong", "beijing").defender, 2);
+});
+
+test("all three Qing armies share the same three AP and the garrison can receive orders", () => {
+  let state = E.endTurn(fresh()).state;
+  state = act(state, "recruit", "beijing-guard", "beijing");
+  state = act(state, "recruit", "zeng", "changsha");
+  state = act(state, "move", "beijing-guard", "tianjin");
+  assert.equal(state.ap, 0);
+  assert.equal(E.check(state, "recruit", "imperial", "jiangnan").ok, false);
+  assert.equal(E.parseSave(JSON.stringify(state)).ok, true);
+});
+
+test("1854 supply losses also apply in each newly added northern town", () => {
+  for (const city of ["huaiqing", "linqing", "cangzhou"]) {
+    let state = fresh(); E.armyById(state, "hong").city = city;
+    state = E.endTurn(E.endTurn(state).state).state;
+    assert.equal(E.armyById(state, "hong").strength, 4, city);
+    assert.equal(E.armyById(state, "shi").strength, 4);
+    assert.equal(E.armyById(state, "beijing-guard").strength, 2);
+  }
 });
 test("all links are reciprocal and every city is reachable", () => {
   for (const city of D.cities) for (const next of D.neighbours[city.id]) assert.ok(D.neighbours[next].includes(city.id));
@@ -209,7 +246,41 @@ test("save restore preserves dice and rejects malformed or duplicate army data",
 test("browser globals load without modules or network access", () => {
   const context = vm.createContext({});
   for (const file of ["data.js", "engine.js"]) vm.runInContext(fs.readFileSync(path.join(__dirname, "../dist", file), "utf8"), context, { filename: file });
-  assert.equal(context.TaipingEngine.createGame({ seed: 1 }).year, 1853); assert.equal(context.TAIPING_DATA.cities.length, 14);
+  assert.equal(context.TaipingEngine.createGame({ seed: 1 }).year, 1853); assert.equal(context.TAIPING_DATA.cities.length, 17);
+});
+
+function legacySave(state) {
+  const saved = E.copy(state); saved.version = 1;
+  for (const id of ["huaiqing", "linqing", "cangzhou"]) delete saved.cities[id];
+  saved.armies = saved.armies.filter(unit => unit.id !== "beijing-guard");
+  return saved;
+}
+
+test("original saves upgrade the map and garrison while preserving the campaign", () => {
+  const old = legacySave(act(fresh(), "move", "hong", "hefei"));
+  const result = E.parseSave(JSON.stringify(old));
+  assert.equal(result.ok, true); assert.equal(result.migrated, true);
+  assert.equal(result.state.version, 2); assert.equal(result.state.ap, old.ap);
+  assert.deepEqual(result.state.treasury, old.treasury); assert.equal(result.state.seed, old.seed);
+  assert.equal(E.armyById(result.state, "hong").city, "hefei");
+  assert.equal(E.armyById(result.state, "beijing-guard").strength, 2);
+  for (const id of ["huaiqing", "linqing", "cangzhou"]) assert.deepEqual(result.state.cities[id], { owner: null, fort: 0 });
+  assert.equal(E.parseSave(JSON.stringify(result.state)).migrated, false);
+});
+
+test("upgrading a finished old campaign does not respawn a hostile Beijing garrison", () => {
+  const state = fresh(); E.armyById(state, "hong").city = "tianjin"; E.armyById(state, "hong").strength = 20;
+  const ended = E.applyAction(state, "attack", "hong", "beijing").state;
+  const result = E.parseSave(JSON.stringify(legacySave(ended)));
+  assert.equal(result.ok, true); assert.equal(result.state.result.winner, "taiping");
+  assert.equal(E.armyById(result.state, "beijing-guard").strength, 0);
+});
+
+test("invalid or missing forces are rejected in both save versions", () => {
+  const old = legacySave(fresh()); old.armies[0] = null;
+  assert.equal(E.parseSave(JSON.stringify(old)).ok, false);
+  const missing = fresh(); missing.armies.pop();
+  assert.equal(E.parseSave(JSON.stringify(missing)).ok, false);
 });
 test("random campaigns preserve resource, occupancy and AP invariants", () => {
   for (let seed = 0; seed < 60; seed++) {

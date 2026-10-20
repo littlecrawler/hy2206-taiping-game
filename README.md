@@ -34,12 +34,16 @@ See the [official GitHub Pages instructions](https://docs.github.com/en/pages/ge
 
 1. Divide the class into Taiping and Qing teams. A host operates the game on one computer. There is no automated opponent.
 2. Select an army from the active side on the left, select a city on the map, then choose an enabled action on the right.
-3. Each side shares 3 action points (AP) between its two armies each year. A side may end its turn early.
+3. Each side shares 3 action points (AP) across all its armies each year. Taiping starts with two armies; Qing has two field armies and a small Beijing garrison. A side may end its turn early.
 4. Attacks first show both sides' forces and modifiers. Clicking **Roll & resolve battle** pays the cost, rolls the dice and resolves combat.
 5. After both sides finish, the game advances to the next year and displays its historical event. In 1856, the Taiping must choose a response to the Tianjing Incident.
 6. Open **Debrief** to compare your campaign with the historical outcome. **Historical atlas** shows both original maps.
 
 Use the fullscreen button in the top-right corner for projection. The game also includes a 60-second discussion timer, undo and a campaign log. Debrief is available in any year; set a time limit after a rehearsal so that playing every round does not crowd out historical discussion.
+
+Historical event cards show the background, game effect and any required decision, without the former “Discuss with your team” prompts. The separate Debrief remains available.
+
+The toolbar retains a sound toggle for future audio. The current version contains no sound effects.
 
 ## Saving and restoring
 
@@ -49,14 +53,19 @@ Open settings in the top-right corner and choose **Save / restore text**. Copy t
 
 This version does not automatically write persistent browser storage or download save files. Save text includes the dice sequence, so undoing and repeating the same battle produces the same dice results.
 
+Original version-1 saves are upgraded on restore: Huaiqing, Linqing and Cangzhou are added as neutral cities, and a 2-strength Beijing garrison is added if Beijing is still Qing-controlled. Existing forces, treasury, AP and dice sequence are preserved. A finished campaign remains finished.
+
 ## Rules to confirm with the group
 
 The detailed opening starts in 1853 and ends in 1864, giving **12 annual rounds, or 24 faction turns**. The proposal's overview also mentions “14 turns”; the group still needs to settle that discrepancy.
 
-This version keeps the proposal's starting resources, army strengths, main routes, action costs, income cap and annual events. The following clarifications make the game playable and are also explained under **Sources & modelling choices**:
+This version keeps the proposal's starting treasuries, original army strengths, action costs, income cap and annual events. The northern route and Beijing defence include the group's requested additions. The following clarifications are also explained under **Sources & modelling choices**:
 
 - **Starting control:** Taiping holds Tianjing and Anqing. Qing holds Beijing, Changsha, Jiangnan Camp and Shanghai. All other cities begin neutral. This is a game setup, not a complete reconstruction of territorial control in 1853.
 - **City defence:** both capitals start with 4 defence, Shanghai with 2 and other cities with 0. Fortifying adds 2, up to a maximum of 8.
+- **Northern towns:** the route now runs Kaifeng 开封 → Huaiqing 怀庆 → Linqing 临清 → Cangzhou 沧州 → Tianjin 天津 → Beijing 北京. Each link requires a separate movement action; passing through a neutral town does not claim it. These are simplified game connections, not a full reconstruction of the historical expedition.
+- **Beijing garrison:** Qing starts with a separate 2-strength force at Beijing, in addition to the capital's 4 city defence. Starting total strength is Taiping 10 and Qing 14. All three Qing armies share the same 3 AP per turn.
+- **Northern supply:** the 1854 loss of 2 strength applies to each Taiping army beyond Kaifeng on the northern route, including the three added towns.
 - **Retreat:** surviving defenders automatically retreat to the nearest reachable friendly city through non-hostile territory, without an AP or treasury cost. If no route exists, the army is routed.
 - **Routed armies:** a force with zero strength regroups at its friendly capital and must recruit before acting again.
 - **Combined defence:** defending armies in the same city combine their strength. Defender losses affect the strongest army first, followed by city defence.
@@ -88,6 +97,7 @@ Army names represent associated forces, not the named leader's literal movements
         style.css            Styles and responsive layout
         data.js              Cities, routes, armies and event text
         engine.js            Turns, resources, combat and save validation
+        sound.js             Sound preference and hooks for future audio
         app.js               Interface interactions
         assets/              Copies of the two supplied maps
       references/            Local proposal snapshot; excluded from Git

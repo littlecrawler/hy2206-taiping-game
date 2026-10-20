@@ -22,7 +22,7 @@
   function createGame(options) {
     options = options || {};
     const state = {
-      version: 1, year: D.startYear, turn: "taiping", ap: 3,
+      version: D.version, year: D.startYear, turn: "taiping", ap: 3,
       treasury: { taiping: 12, qing: 15 }, cities: {},
       armies: copy(D.armies), seed: (options.seed === undefined ? Date.now() : options.seed) >>> 0,
       randomEvents: Boolean(options.randomEvents), randomEvent: null, pending: null, result: null, log: []
@@ -184,7 +184,9 @@
   function applyYearEvent(state) {
     state.pending = null;
     if (state.year === 1854) {
-      state.armies.filter(function (army) { return army.faction === "taiping" && ["tianjin", "beijing"].includes(army.city); }).forEach(function (army) {
+      const north = D.routes.find(function (route) { return route.id === "north"; }).cities;
+      const supplyCities = north.slice(north.indexOf("kaifeng") + 1);
+      state.armies.filter(function (army) { return army.faction === "taiping" && supplyCities.includes(army.city); }).forEach(function (army) {
         army.strength = Math.max(0, army.strength - 2); reorganise(state, army);
         log(state, army.name + ": lost 2 strength to northern supply difficulties.");
       });
@@ -260,12 +262,22 @@
   function parseSave(text) {
     let state;
     try { state = JSON.parse(text); } catch (_) { return { ok: false, error: "This is not valid save text." }; }
+    const migrated = state && state.version === 1;
+    if (migrated) {
+      const addedCities = ["huaiqing", "linqing", "cangzhou"];
+      if (!state.cities || addedCities.some(function (id) { return Object.prototype.hasOwnProperty.call(state.cities, id); }) || !Array.isArray(state.armies) || state.armies.length !== 4 || !state.cities.beijing) return { ok: false, error: "This older save has invalid cities or armies." };
+      state.version = D.version;
+      addedCities.forEach(function (id) { state.cities[id] = { owner: null, fort: 0 }; });
+      const guard = copy(D.armies.find(function (unit) { return unit.id === "beijing-guard"; }));
+      if (state.cities.beijing.owner !== "qing") guard.strength = 0;
+      state.armies.push(guard);
+    }
     const integer = function (n, max) { return Number.isSafeInteger(n) && n >= 0 && n <= max; };
-    if (!state || state.version !== 1 || !Number.isSafeInteger(state.year) || !integer(state.year - D.startYear, D.endYear - D.startYear) || !["taiping", "qing"].includes(state.turn) || !integer(state.ap, 3)) return { ok: false, error: "The save has an invalid version, year or turn." };
+    if (!state || state.version !== D.version || !Number.isSafeInteger(state.year) || !integer(state.year - D.startYear, D.endYear - D.startYear) || !["taiping", "qing"].includes(state.turn) || !integer(state.ap, 3)) return { ok: false, error: "The save has an invalid version, year or turn." };
     if (!state.treasury || !["taiping", "qing"].every(function (side) { return integer(state.treasury[side], 100000); })) return { ok: false, error: "Invalid treasury values." };
     if (!state.cities || !D.cities.every(function (city) { const entry = state.cities[city.id]; return entry && [null, "taiping", "qing"].includes(entry.owner) && integer(entry.fort, 8); })) return { ok: false, error: "Invalid city values." };
-    if (!Array.isArray(state.armies) || state.armies.length !== 4 || !D.armies.every(function (unit) {
-      const matches = state.armies.filter(function (army) { return army.id === unit.id; });
+    if (!Array.isArray(state.armies) || state.armies.length !== D.armies.length || !D.armies.every(function (unit) {
+      const matches = state.armies.filter(function (army) { return army && army.id === unit.id; });
       return matches.length === 1 && matches[0].faction === unit.faction && D.cities.some(function (city) { return city.id === matches[0].city; }) && integer(matches[0].strength, 10000);
     })) return { ok: false, error: "Invalid army values." };
     if (!integer(state.seed, 4294967295) || typeof state.randomEvents !== "boolean" || ![null, "tianjing"].includes(state.pending)) return { ok: false, error: "Invalid event state." };
@@ -286,7 +298,7 @@
     });
     clean.log = Array.isArray(state.log) ? state.log.filter(function (entry) { return entry && typeof entry.message === "string" && integer(entry.year - D.startYear, D.endYear - D.startYear) && ["taiping", "qing"].includes(entry.side); }).slice(-160).map(function (entry) { return { year: entry.year, side: entry.side, message: entry.message.slice(0, 1500) }; }) : [];
     clean.randomEvent = state.randomEvent && typeof state.randomEvent.title === "string" && typeof state.randomEvent.text === "string" ? { title: state.randomEvent.title.slice(0, 120), text: state.randomEvent.text.slice(0, 500) } : null;
-    return { ok: true, state: clean };
+    return { ok: true, state: clean, migrated: Boolean(migrated) };
   }
   const api = { createGame: createGame, check: check, applyAction: applyAction, endTurn: endTurn, resolveIncident: resolveIncident, battlePreview: battlePreview, income: income, strength: strength, armyById: armyById, troopsAt: troopsAt, parseSave: parseSave, copy: copy };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
