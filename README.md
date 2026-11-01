@@ -6,7 +6,7 @@ A strategy game about the Taiping Rebellion for a classroom activity with two te
 
 ## Getting started
 
-For offline classroom use, open **Taiping-Classroom.html** in your browser. This single file includes both maps; copying it to another computer is enough to play.
+For offline classroom use, open **Taiping-Classroom.html** in your browser. This single file includes both maps and all seven audio clips; copying it to another computer is enough to play with sound.
 
 The files in dist/ provide the version for editing. You can also open dist/index.html directly; copy the entire dist folder when transferring this version to another computer.
 
@@ -43,7 +43,19 @@ Use the fullscreen button in the top-right corner for projection. The game also 
 
 Historical event cards show the background, game effect and any required decision, without the former “Discuss with your team” prompts. The separate Debrief remains available.
 
-The toolbar retains a sound toggle for future audio. The current version contains no sound effects.
+Sound starts **off**. Click **Sound off** in the toolbar to enable it; a short marching preview confirms the switch. Audio uses the seven MP3 files supplied by the group, at full playback volume. The computer's volume still controls the final listening level.
+
+| When it plays | Supplied audio |
+| --- | --- |
+| Move an army | `soldiers-marching-soundbible (1).mp3` (2.5-second excerpt) |
+| Roll & resolve battle | `sword-fast-fight.mp3` (3-second excerpt) |
+| Claim a neutral city or successfully capture a city | `City Captured.mp3`; after battle sounds when attacking |
+| The defending team's next turn begins after losing a city | `City Lost.mp3` (once per turn) |
+| Taiping captures Beijing and wins | `Taiping Victory.mp3`, after the battle sounds |
+| Qing captures Tianjing and wins | `Qing Victory.mp3`, after the battle sounds |
+| The campaign reaches its 1864 stalemate | `Endgame.mp3` |
+
+Audio never delays game actions. A new sound replaces the previous sequence; muting, undoing, restoring or starting a new campaign stops playback immediately. Winning a capital uses the faction victory track instead of the ordinary capture cue. Failed attacks and ties do not play capture/loss announcements. Selecting cities, opening history cards, recruiting and fortifying remain silent. Refreshing resets sound to off; restore starts a fresh turn-loss comparison without replaying old events.
 
 ## Saving and restoring
 
@@ -81,6 +93,7 @@ Army names represent associated forces, not the named leader's literal movements
 ## Materials and historical sources
 
 - The two original JPG maps remain in the project root. Copies used by the editable webpage are in dist/assets/.
+- The seven original MP3 files remain in the project root. Identical copies with simple filenames are in dist/assets/audio/; the build embeds these into both complete HTML files. No synthesized audio is used.
 - references/group-proposal-snapshot.txt is a local snapshot of the discussion document read on 2026-10-19, retained for comparison with the implementation. The Google Doc was not edited. The references folder is excluded from Git.
 - Event narratives follow the group's working research and should not be treated as a fully verified final teaching script.
 - The game links to an [1864 diplomatic source from the Office of the Historian](https://history.state.gov/historicaldocuments/frus1864p3/d433) and [National Army Museum material about the Second China War](https://www.nam.ac.uk/explore/second-china-war). The diplomatic correspondence expresses contemporary interests and should be read critically.
@@ -97,19 +110,20 @@ Army names represent associated forces, not the named leader's literal movements
         style.css            Styles and responsive layout
         data.js              Cities, routes, armies and event text
         engine.js            Turns, resources, combat and save validation
-        sound.js             Sound preference and hooks for future audio
+        sound.js             MP3 playback, mute control and event cues
         app.js               Interface interactions
         assets/              Copies of the two supplied maps
+          audio/             Seven supplied MP3 clips
       references/            Local proposal snapshot; excluded from Git
-      tests/                 Game-rule checks
+      tests/                 Game-rule and audio checks
       preview.mjs            Optional local preview server
       build-standalone.mjs   Generate the offline file and Pages homepage
       README.md              English documentation, shown by default
       README.zh-CN.md        Chinese documentation
 
-Check the game rules:
+Check the game rules, audio playback and embedded assets:
 
-    node --test tests/engine.test.cjs
+    node --test tests/engine.test.cjs tests/sound.test.cjs
 
 After editing the source files in dist/, regenerate both the offline version and the GitHub Pages homepage:
 

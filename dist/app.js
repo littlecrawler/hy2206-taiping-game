@@ -3,6 +3,7 @@
   const D = window.TAIPING_DATA, E = window.TaipingEngine, S = window.TaipingSound;
   const mapAssets = window.TAIPING_MAP_ASSETS || { early: "assets/early-map.jpg", late: "assets/late-map.jpg" };
   let game = E.createGame(), selectedArmy = "hong", selectedCity = "tianjing", route = "all", zoom = 1;
+  let turnStartCities = E.copy(game.cities);
   let undoStack = [], modalView = null, toastTimeout, timerId = null, seconds = 60;
   const $ = function (id) { return document.getElementById(id); };
   const esc = function (value) { return String(value).replace(/[&<>"']/g, function (char) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]; }); };
@@ -20,8 +21,9 @@
     $("toast").textContent = message; $("toast").classList.add("visible");
     clearTimeout(toastTimeout); toastTimeout = setTimeout(function () { $("toast").classList.remove("visible"); }, 4000);
   }
+  S.setErrorHandler(function () { toast("Audio could not play. Turn sound off and on, then try again."); });
   function remember() {
-    undoStack.push({ game: E.copy(game), selectedArmy: selectedArmy, selectedCity: selectedCity });
+    undoStack.push({ game: E.copy(game), selectedArmy: selectedArmy, selectedCity: selectedCity, turnStartCities: E.copy(turnStartCities) });
     undoStack = undoStack.slice(-35);
   }
   function chooseActiveArmy() {
@@ -180,7 +182,7 @@
     remember(); game = result.state;
     if (action !== "attack") selectedCity = army().city;
     render();
-    S.play(action === "attack" ? "battle" : game.result ? "victory" : action);
+    S.play(action === "attack" ? "battle" : action, { battle: result.battle, result: game.result });
     if (result.battle) { modalView.battle = result.battle; renderModal(); }
     else toast(D.actions[action].name + " complete. " + game.ap + " AP remaining.");
   }
@@ -193,7 +195,9 @@
     const target = event.target.closest("button,[data-map-city],[data-map-army]");
     if (!target || target.disabled) return;
     if (target.id === "sound-toggle") {
-      S.setEnabled(!S.isEnabled()); renderSound(); return;
+      S.setEnabled(!S.isEnabled()); renderSound();
+      if (S.isEnabled()) { S.play("preview"); toast("Sound on. Movement, battles and campaign outcomes now play audio."); }
+      return;
     }
     if (target.matches("[data-open]")) { openView(target.dataset.open, target.dataset.open === "atlas" ? { phase: game.year >= 1857 ? "late" : "early" } : {}); return; }
     if (target.matches("[data-close],.close-modal")) { closeDialog(); return; }
@@ -201,9 +205,9 @@
     if (target.matches("[data-army],[data-map-army]")) {
       const id = target.dataset.army || target.dataset.mapArmy, unit = E.armyById(game, id);
       if (unit.faction !== game.turn || game.result) { selectedCity = unit.city; render(); toast("Select one of " + sideName(game.turn) + "'s armies to issue orders."); return; }
-      selectedArmy = id; selectedCity = unit.city; render(); S.play("select"); return;
+      selectedArmy = id; selectedCity = unit.city; render(); return;
     }
-    if (target.matches("[data-map-city]")) { selectedCity = target.dataset.mapCity; renderMap(); renderOrders(); S.play("select"); return; }
+    if (target.matches("[data-map-city]")) { selectedCity = target.dataset.mapCity; renderMap(); renderOrders(); return; }
     if (target.matches("[data-route]")) { route = target.dataset.route; renderMap(); return; }
     if (target.matches("[data-action]")) {
       if (target.dataset.action === "attack") openView("battle", { armyId: selectedArmy, target: selectedCity, origin: army().city, battle: null });
@@ -214,25 +218,27 @@
     if (target.matches("[data-incident]")) {
       const result = E.resolveIncident(game, target.dataset.incident);
       if (!result.ok) { toast(result.error); return; }
-      remember(); game = result.state; render(); renderModal(); S.play("event"); toast("Incident resolved. Random event and annual income processed."); return;
+      remember(); game = result.state; render(); renderModal(); toast("Incident resolved. Random event and annual income processed."); return;
     }
     if (target.matches("[data-atlas]")) { modalView.phase = target.dataset.atlas; renderModal(); return; }
     if (target.id === "end-turn") {
       const result = E.endTurn(game);
       if (!result.ok) { toast(result.error); return; }
       remember(); game = result.state; chooseActiveArmy(); stopTimer(); render();
-      S.play(game.result ? "victory" : result.newYear ? "year" : "turn");
+      S.stop();
+      S.play("turn", { previousCities: turnStartCities, cities: game.cities, side: game.turn, result: game.result });
+      turnStartCities = E.copy(game.cities);
       if (game.result) openView("debrief"); else if (result.newYear) openView("event", { year: game.year }); else toast("Qing's turn begins. Choose an army and discuss your move.");
       return;
     }
     if (target.id === "undo") {
       const previous = undoStack.pop(); if (!previous) return;
-      game = previous.game; selectedArmy = previous.selectedArmy; selectedCity = previous.selectedCity; stopTimer(); render();
+      S.stop(); game = previous.game; turnStartCities = previous.turnStartCities; selectedArmy = previous.selectedArmy; selectedCity = previous.selectedCity; stopTimer(); render();
       toast("Last step undone. Dice results remain reproducible."); return;
     }
     if (target.id === "new-campaign") { openView("newconfirm", { randomEvents: $("random-setting").checked }); return; }
     if (target.id === "confirm-new") {
-      game = E.createGame({ randomEvents: modalView.randomEvents }); undoStack = []; selectedArmy = "hong"; selectedCity = "tianjing"; route = "all"; zoom = 1; stopTimer(); closeDialog(); render(); S.play("year"); toast("A new campaign begins in 1853."); return;
+      S.stop(); game = E.createGame({ randomEvents: modalView.randomEvents }); turnStartCities = E.copy(game.cities); undoStack = []; selectedArmy = "hong"; selectedCity = "tianjing"; route = "all"; zoom = 1; stopTimer(); closeDialog(); render(); toast("A new campaign begins in 1853."); return;
     }
     if (target.id === "copy-save") {
       const input = $("save-text"); input.focus(); input.select();
@@ -243,7 +249,7 @@
     if (target.id === "restore-save") {
       const result = E.parseSave($("save-text").value);
       if (!result.ok) { toast(result.error); return; }
-      remember(); game = result.state; chooseActiveArmy(); stopTimer(); zoom = 1; closeDialog(); render();
+      remember(); S.stop(); game = result.state; turnStartCities = E.copy(game.cities); chooseActiveArmy(); stopTimer(); zoom = 1; closeDialog(); render();
       if (game.pending) openView("event", { year: game.year }); else if (game.result) openView("debrief");
       toast(result.migrated ? "Older campaign restored with the northern towns and Beijing garrison added." : "Campaign restored. You can undo this restore if needed."); return;
     }
@@ -259,10 +265,10 @@
     }
     if (target.id === "timer") {
       if (timerId) { stopTimer(); return; }
-      seconds = 60; S.play("select"); $("timer").classList.add("running"); $("timer-label").textContent = "Discussion in progress · click to reset"; $("timer-status").textContent = "60s";
+      seconds = 60; $("timer").classList.add("running"); $("timer-label").textContent = "Discussion in progress · click to reset"; $("timer-status").textContent = "60s";
       timerId = setInterval(function () {
         seconds--; $("timer-status").textContent = seconds + "s";
-        if (seconds <= 0) { stopTimer(); S.play("timer"); $("timer-label").textContent = "Discussion time is up · start again"; toast("Discussion time is up. Agree on an order before acting."); }
+        if (seconds <= 0) { stopTimer(); $("timer-label").textContent = "Discussion time is up · start again"; toast("Discussion time is up. Agree on an order before acting."); }
       }, 1000);
     }
   });

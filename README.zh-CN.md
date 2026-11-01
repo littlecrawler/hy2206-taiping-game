@@ -6,7 +6,7 @@
 
 ## 打开方式
 
-推荐直接双击本文件夹中的 **Taiping-Classroom.html**。这是包含两张地图的单文件离线版；复制这一个文件到课堂电脑即可使用。
+推荐直接双击本文件夹中的 **Taiping-Classroom.html**。这是包含两张地图及全部七段音频的单文件离线版；复制这一个文件到课堂电脑即可带音效使用。
 
 dist/index.html 是便于后续编辑的分文件版本，也可以直接双击。地图、规则和游戏逻辑均在本地，不需要安装依赖或连接网络；分文件版本请连同整个 dist 文件夹一起复制。
 
@@ -41,7 +41,19 @@ dist/index.html 是便于后续编辑的分文件版本，也可以直接双击�
 
 历史卡保留背景、游戏效果及必要的事件选择，已移除原来的“Discuss with your team”标题和讨论问题。独立的 Debrief 复盘功能仍可使用。
 
-顶部静音开关保留，供以后接入音效；当前版本不包含音效。
+音效默认**关闭**。点击顶部 **Sound off** 开启，会播放一小段行军声作为确认。使用小组提供的七个 MP3 原文件，以完整播放音量播放；最终听感仍受电脑系统音量影响。
+
+| 播放时机 | 对应素材 |
+| --- | --- |
+| 移动军队 | `soldiers-marching-soundbible (1).mp3`，播放 2.5 秒片段 |
+| 点击 Roll & resolve battle 结算战斗 | `sword-fast-fight.mp3`，播放 3 秒片段 |
+| Claim 中立城市或成功攻占城市 | `City Captured.mp3`；攻城时接在战斗声后面 |
+| 轮到上一回合失去城市的一方 | `City Lost.mp3`，每回合提醒一次 |
+| 太平军攻下北京获胜 | 战斗声后播放 `Taiping Victory.mp3` |
+| 清军攻下天京获胜 | 战斗声后播放 `Qing Victory.mp3` |
+| 1864 年结束仍未攻下首都，达成平局 | `Endgame.mp3` |
+
+音频不会阻塞操作。新的音频会替换上一段播放；静音、撤销、恢复存档或新开游戏会立即停止声音。攻下首都直接播放对应阵营胜利曲，代替普通占城提示。攻击失败或平手不播放占城、失城提示。选城市、查看历史卡、征兵和加固保持无声。刷新后音效恢复为关闭；恢复存档会重新开始统计本回合失城情况，不重播旧事件。
 
 ## 保存与恢复
 
@@ -77,6 +89,7 @@ dist/index.html 是便于后续编辑的分文件版本，也可以直接双击�
 ## 材料与历史来源
 
 - 两张原始 JPG 保留在本文件夹根目录；网页副本放在 dist/assets/。
+- 七个 MP3 原文件保留在根目录，内容相同、文件名简化的副本放在 dist/assets/audio/；构建时会一并嵌入两个完整 HTML。没有使用合成音效。
 - references/group-proposal-snapshot.txt 是 2026-10-19 读取的讨论文档快照，便于对照实现；未修改 Google Doc。references 文件夹已从 Git 中排除。
 - 事件年表依照小组研究稿，不应视为已经完成独立史料核查的最终讲稿。
 - 网页提供 Office of the Historian 的 1864 年外交史料与 National Army Museum 的第二次鸦片战争背景材料。外交史料保留其当时立场，不能直接当作中立叙述。
@@ -93,19 +106,20 @@ dist/index.html 是便于后续编辑的分文件版本，也可以直接双击�
         style.css        视觉样式和响应式布局
         data.js          城市、路线、人物、事件文案
         engine.js        回合、资源、战斗及存档校验
-        sound.js             静音偏好及以后接入音效的位置
+        sound.js         MP3 播放、静音及事件音效
         app.js           界面交互
         assets/          两张地图的网页副本
+          audio/         小组提供的七段 MP3
       references/        讨论稿快照
-      tests/             游戏规则测试
+      tests/             游戏规则及音频测试
       preview.mjs        可选本地预览
       build-standalone.mjs  从 dist 生成离线版和 Pages 首页
       README.md          默认英文说明
       README.zh-CN.md    中文说明
 
-检查游戏逻辑：
+检查游戏逻辑、音频播放及内嵌素材：
 
-    node --test tests/engine.test.cjs
+    node --test tests/engine.test.cjs tests/sound.test.cjs
 
 修改 dist 的源文件后，同时重新生成课堂单文件版和 GitHub Pages 首页：
 
