@@ -8,7 +8,7 @@ A two-team strategy game for a shared classroom screen. **Classroom v3** uses si
 
 ## Play offline
 
-Open **Taiping-Classroom.html** in Chrome or Edge. This single file contains the game, both historical maps, seven supplied MP3 clips, two soldier icons and two victory pictures. Copying this one file to another computer is enough; no installation or internet is required.
+Open **Taiping-Classroom.html** in Chrome or Edge. This single file contains the game, both historical maps, seven supplied MP3 clips, two soldier icons and three ending pictures. Copying this one file to another computer is enough; no installation or internet is required.
 
 The root **index.html** is an identical copy for GitHub Pages. The editable version is in **dist/**; keep that whole folder together when using it separately.
 
@@ -78,7 +78,7 @@ Sound starts **on** and begins playing when you perform a movement or battle act
 
 Audio never blocks an action. A new move or battle replaces the previous sequence, but changing teams lets the current action and capture sounds finish; any turn-loss announcement follows them. Muting, undoing, restoring or starting a new game stops playback. Refreshing resets sound to on; loading the page alone does not autoplay audio.
 
-The supplied Taiping and Qing soldiers appear on the map and in the roster. Each team's victory shows its corresponding supplied picture. A draw currently uses a text result.
+The supplied Taiping and Qing soldiers appear on the map and in the roster. Each team's victory shows its corresponding supplied picture. A final-score draw shows the supplied Foreign Expeditionaries in China picture alongside the draw heading and final city scores.
 
 ## Save and restore
 
@@ -124,7 +124,7 @@ GitHub Pages serves the root **index.html**. Push the rebuilt file with the sour
 
 ## Materials and historical context
 
-- Original maps and audio remain in the project root. Web copies are under **dist/assets/**. The four PNG pictures supplied by the group are under **dist/assets/images/**.
+- Original maps and audio remain in the project root. Web copies are under **dist/assets/**. The five PNG pictures supplied by the group are under **dist/assets/images/**.
 - **references/group-proposal-snapshot.txt** preserves the earlier working proposal locally; the references folder is excluded from Git. Classroom v3 deliberately simplifies that proposal.
 - Historical text follows the group's working research. The game also links to an [1864 diplomatic report](https://history.state.gov/historicaldocuments/frus1864p3/d433) and [National Army Museum material on the Second China War](https://www.nam.ac.uk/explore/second-china-war).
 - Army names represent associated forces, not the named leaders' literal movements or continued personal command. The rules and artwork are classroom representations; they do not reproduce the full historical experience.

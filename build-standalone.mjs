@@ -19,7 +19,7 @@ for (const [name, file] of Object.entries(audioFiles)) {
   audio[name] = "data:audio/mpeg;base64," + (await readFile(resolve(dist, file))).toString("base64");
 }
 const images = {};
-for (const name of ["taiping-troop", "qing-troop", "taiping-victory", "qing-victory"]) {
+for (const name of ["taiping-troop", "qing-troop", "taiping-victory", "qing-victory", "draw-ending"]) {
   images[name] = "data:image/png;base64," + (await readFile(resolve(dist, "assets/images", name + ".png"))).toString("base64");
 }
 const scripts = ['window.TAIPING_MAP_ASSETS = ' + JSON.stringify(maps) + ";", 'window.TAIPING_SOUND_ASSETS = ' + JSON.stringify(audio) + ";", 'window.TAIPING_IMAGE_ASSETS = ' + JSON.stringify(images) + ";"];

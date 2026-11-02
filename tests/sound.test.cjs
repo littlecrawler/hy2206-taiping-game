@@ -193,11 +193,11 @@ test("both standalone pages embed all seven original MP3 payloads and current sc
   assert.doesNotMatch(standalone, /AudioContext|createOscillator|createBufferSource/);
 });
 
-test("standalone pages embed all four supplied troop and victory images without changes", () => {
+test("standalone pages embed all five supplied troop and ending images without changes", () => {
   const root = path.join(__dirname, "..");
   const standalone = fs.readFileSync(path.join(root, "Taiping-Classroom.html"), "utf8");
   const embedded = JSON.parse(standalone.match(/window\.TAIPING_IMAGE_ASSETS = (\{[^\n]+\});/)[1]);
-  const names = ["taiping-troop", "qing-troop", "taiping-victory", "qing-victory"];
+  const names = ["taiping-troop", "qing-troop", "taiping-victory", "qing-victory", "draw-ending"];
   assert.deepEqual(Object.keys(embedded).sort(), names.slice().sort());
   for (const name of names) {
     assert.match(embedded[name], /^data:image\/png;base64,/);

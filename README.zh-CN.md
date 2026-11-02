@@ -8,7 +8,7 @@
 
 ## 离线打开
 
-用 Chrome 或 Edge 打开 **Taiping-Classroom.html** 即可。这个单文件已经包含游戏、两张历史地图、七段音频、双方士兵图标及两张胜利图片。复制这一个文件到课堂电脑就能使用，不需要安装或联网。
+用 Chrome 或 Edge 打开 **Taiping-Classroom.html** 即可。这个单文件已经包含游戏、两张历史地图、七段音频、双方士兵图标及三张结局图片。复制这一个文件到课堂电脑就能使用，不需要安装或联网。
 
 根目录的 **index.html** 与它内容一致，用作 GitHub Pages 首页。**dist/** 是便于修改的分文件版本，单独使用时请复制整个文件夹。
 
@@ -78,7 +78,7 @@
 
 音频不会阻塞游戏。新的移动或战斗会替换之前的播放序列；换队不会打断当前行动与占领音效，丢城提示会接着播放。静音、撤销、恢复存档或新开游戏会停止播放。刷新后声音默认开启，但仅加载页面不会自动播放。
 
-太平军、清军士兵图片显示在地图和军队列表；双方获胜时分别显示小组提供的胜利图片。目前平局使用文字结果。
+太平军、清军士兵图片显示在地图和军队列表；双方获胜时分别显示小组提供的胜利图片。最终同分时显示小组提供的 Foreign Expeditionaries in China 平局图片，同时保留平局标题和双方城市分数。
 
 ## 保存与恢复
 
@@ -124,7 +124,7 @@ GitHub Pages 使用根目录的 **index.html**。修改后应同时推送源码�
 
 ## 素材与历史背景
 
-- 原始地图和音频保留在项目根目录，网页使用的副本位于 **dist/assets/**。小组提供的四张 PNG 图片位于 **dist/assets/images/**。
+- 原始地图和音频保留在项目根目录，网页使用的副本位于 **dist/assets/**。小组提供的五张 PNG 图片位于 **dist/assets/images/**。
 - **references/group-proposal-snapshot.txt** 在本地保留早期小组方案；references 文件夹不提交到 Git。Classroom v3 对该方案做了明确的课堂简化。
 - 历史文字来自小组研究；页面同时提供 [1864 年外交报告](https://history.state.gov/historicaldocuments/frus1864p3/d433)和 [National Army Museum 关于第二次鸦片战争的材料](https://www.nam.ac.uk/explore/second-china-war)。
 - 军队名称代表相关势力，不表示某位领导者本人的实际行军或持续指挥。规则与图片用于课堂展示，不能完整重现历史经验。
