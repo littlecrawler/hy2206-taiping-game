@@ -21,13 +21,67 @@ function fixture() {
   return { player, media, calls, errors, created: () => created };
 }
 
-test("loading and muted actions never start or create audio", async () => {
+test("sound defaults on without autoplay, and muting prevents audio", async () => {
   const f = fixture();
-  assert.equal(f.player.isEnabled(), false);
+  assert.equal(f.player.isEnabled(), true);
+  assert.equal(f.created(), 0);
+  f.player.setEnabled(false);
   assert.equal(await f.player.play("move"), false);
   f.player.setEnabled(true);
   assert.equal(await f.player.play("select"), false);
   assert.equal(f.created(), 0);
+  f.player.stop();
+});
+
+test("the first game action plays at full volume without toggling sound", async () => {
+  const f = fixture();
+  assert.equal(await f.player.play("move"), true);
+  assert.deepEqual(f.calls, [files.move]);
+  assert.equal(f.media.paused, false);
+  assert.equal(f.media.muted, false);
+  assert.equal(f.media.volume, 1);
+  f.player.stop();
+});
+
+test("a normal turn change preserves the current movement and capture audio", async () => {
+  const f = fixture();
+  await f.player.play("move", { captured: true });
+  f.media.currentTime = 0.4;
+  assert.equal(await f.player.play("turn", {}), false);
+  assert.equal(f.media.paused, false);
+  assert.equal(f.media.currentTime, 0.4);
+  assert.deepEqual(f.calls, [files.move]);
+  f.media.finish();
+  await Promise.resolve();
+  assert.deepEqual(f.calls, [files.move, files.capture]);
+  f.player.stop();
+});
+
+test("turn loss audio waits for the move and capture; stale endings cannot skip a clip", async () => {
+  const f = fixture();
+  await f.player.play("move", { captured: true });
+  const moveEnded = f.media.onended;
+  await f.player.play("turn", { side: "qing", previousCities: { city: { owner: "qing" } }, cities: { city: { owner: "taiping" } } });
+  assert.deepEqual(f.calls, [files.move]);
+  moveEnded();
+  await Promise.resolve();
+  assert.deepEqual(f.calls, [files.move, files.capture]);
+  moveEnded();
+  assert.deepEqual(f.calls, [files.move, files.capture]);
+  f.media.finish();
+  await Promise.resolve();
+  assert.deepEqual(f.calls, [files.move, files.capture, files.loss]);
+  f.player.stop();
+});
+
+test("the sound check plays the supplied marching, battle and capture clips", async () => {
+  const f = fixture();
+  await f.player.play("test");
+  f.media.finish();
+  await Promise.resolve();
+  f.media.finish();
+  await Promise.resolve();
+  assert.deepEqual(f.calls, [files.move, files.battle, files.capture]);
   f.player.stop();
 });
 

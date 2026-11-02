@@ -54,7 +54,7 @@
         <button class="quiet-button" data-open="rules"><svg class="icon"><use href="#icon-book"/></svg>Quick rules</button>
         <button class="quiet-button" data-open="atlas"><svg class="icon"><use href="#icon-map"/></svg>Historical atlas</button>
         <button class="quiet-button" data-open="debrief">Results</button>
-        <button class="quiet-button" id="sound-toggle" aria-label="Sound effects" aria-pressed="false" title="Enable sound effects"><svg class="icon"><use href="#icon-muted"/></svg><span>Sound off</span></button>
+        <button class="quiet-button" id="sound-toggle" aria-label="Sound effects" aria-pressed="true" title="Mute sound effects"><svg class="icon"><use href="#icon-sound"/></svg><span>Sound on</span></button>
         <button class="icon-button" id="fullscreen" aria-label="Toggle fullscreen" title="Fullscreen for projection"><svg class="icon"><use href="#icon-expand"/></svg></button>
         <button class="icon-button" data-open="settings" aria-label="Campaign settings and save tools" title="Campaign settings and save tools"><svg class="icon"><use href="#icon-settings"/></svg></button>
       </nav>
@@ -398,6 +398,7 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
   function sequenceFor(event, details) {
     details = details || {};
     if (event === "preview") return [{ clip: "move", seconds: 1.2 }];
+    if (event === "test") return [{ clip: "move", seconds: 1.2 }, { clip: "battle", seconds: 3 }, { clip: "capture" }];
     if (event === "move") {
       const sequence = [{ clip: "move", seconds: 2.5 }];
       if (details.result) sequence.push({ clip: ending(details.result) });
@@ -431,7 +432,8 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
       root.document.body.appendChild(element);
       return element;
     };
-    let enabled = false, audio = null, generation = 0, cutoff = null, errorHandler = function () {};
+    // Enabled by default, but playback only starts from a game action or sound test.
+    let enabled = true, audio = null, generation = 0, cutoff = null, append = null, errorHandler = function () {};
     function clearClip() {
       clearTimeout(cutoff); cutoff = null;
       if (!audio) return;
@@ -439,13 +441,16 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
       audio.pause();
       try { audio.currentTime = 0; } catch (_) { /* The media may not have loaded yet. */ }
     }
-    function stop() { generation++; clearClip(); }
+    function stop() { generation++; append = null; clearClip(); }
     function play(event, details) {
       const sequence = sequenceFor(event, details);
       if (!enabled || !sequence.length) return Promise.resolve(false);
+      // Changing teams must not cut off the action or its capture announcement.
+      if (event === "turn" && append) { append(sequence); return Promise.resolve(true); }
       stop();
       const current = generation;
       let index = 0;
+      append = function (steps) { sequence.push.apply(sequence, steps); };
       function failed(error) {
         if (current === generation) { stop(); errorHandler(error); }
         return false;
@@ -454,20 +459,31 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
         if (!enabled || current !== generation) return Promise.resolve(false);
         clearClip();
         const step = sequence[index++];
-        if (!step) return Promise.resolve(true);
+        if (!step) { append = null; return Promise.resolve(true); }
+        let finished = false;
+        function advance() {
+          if (finished || current !== generation) return;
+          finished = true;
+          void next();
+        }
+        function clipFailed(error) {
+          if (finished || current !== generation) return false;
+          finished = true;
+          return failed(error);
+        }
         try {
           if (!audio) audio = makeAudio();
-          audio.preload = "auto"; audio.volume = 1; audio.loop = false;
+          audio.preload = "auto"; audio.volume = 1; audio.muted = false; audio.loop = false;
           audio.src = assets[step.clip];
-          audio.onended = function () { void next(); };
-          audio.onerror = function () { failed(audio.error); };
+          audio.onended = advance;
+          audio.onerror = function () { clipFailed(audio.error); };
           // Start in the click handler; reuse this media element for queued clips.
           return Promise.resolve(audio.play()).then(function () {
-            if (!enabled || current !== generation) return false;
-            if (step.seconds) cutoff = setTimeout(function () { void next(); }, step.seconds * 1000);
+            if (!enabled || current !== generation || finished) return false;
+            if (step.seconds) cutoff = setTimeout(advance, step.seconds * 1000);
             return true;
-          }).catch(failed);
-        } catch (error) { return Promise.resolve(failed(error)); }
+          }).catch(clipFailed);
+        } catch (error) { return Promise.resolve(clipFailed(error)); }
       }
       return next();
     }
@@ -501,7 +517,7 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
     $("toast").textContent = message; $("toast").classList.add("visible");
     clearTimeout(toastTimeout); toastTimeout = setTimeout(() => $("toast").classList.remove("visible"), 4500);
   }
-  S.setErrorHandler(() => toast("Audio could not play. Turn sound off and on, then try again."));
+  S.setErrorHandler(() => toast("Audio could not play. Open the settings button and choose Test sound to retry."));
   function renderSound() {
     const enabled = S.isEnabled(), button = $("sound-toggle");
     button.setAttribute("aria-pressed", String(enabled));
@@ -621,7 +637,7 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
       setDialog('<h2 id="modal-title">The group\'s original maps.</h2><p class="dialog-intro">These historical scans are references. Live game ownership is shown by the coloured circles on the game board.</p><div class="atlas-picker"><button class="secondary-button" data-atlas="early">1851–1856</button><button class="secondary-button" data-atlas="late">1857 onwards</button></div><img class="source-map" src="' + mapAssets[late ? 'late' : 'early'] + '" alt="Original ' + (late ? 'later' : 'early') + ' campaign map supplied by the group">', 'HISTORICAL ATLAS', true);
     }
     if (view.type === 'journal') setDialog('<h2 id="modal-title">Game log.</h2><div class="full-log">' + game.log.slice().reverse().map(entry => '<div class="log-line"><span class="log-year">' + entry.year + '</span><span>' + esc(entry.message) + '</span></div>').join('') + '</div>', 'MOVES & CITY CONTROL');
-    if (view.type === 'settings') setDialog('<h2 id="modal-title">Host tools.</h2><p class="dialog-intro">Classroom v3: two actions per team per year. The current game stays in this browser tab. Copy a save before refreshing if you want to keep it.</p><div class="dialog-actions"><button class="primary-button" data-open="newconfirm">New game</button><button class="secondary-button" data-open="save">Save / restore text</button><button class="secondary-button" data-open="rules">Quick rules</button></div>', 'HOST TOOLS');
+    if (view.type === 'settings') setDialog('<h2 id="modal-title">Host tools.</h2><p class="dialog-intro">Classroom v3: two actions per team per year. The current game stays in this browser tab. Copy a save before refreshing if you want to keep it.</p><div class="dialog-actions"><button class="primary-button" data-open="newconfirm">New game</button><button class="secondary-button" data-open="save">Save / restore text</button><button class="secondary-button" data-open="rules">Quick rules</button></div><div class="dialog-section"><h3>Sound check</h3><p>Sound starts on. Test the marching, battle and capture clips before presenting. The test does not use an action.</p><button class="secondary-button" id="test-sound">Test sound</button></div>', 'HOST TOOLS');
     if (view.type === 'newconfirm') setDialog('<h2 id="modal-title">Start again in 1853?</h2><p class="dialog-intro">This replaces the current game with the classroom starting position. Sound keeps its current setting.</p><div class="dialog-actions"><button class="primary-button" id="confirm-new">Start new game</button><button class="secondary-button" data-close>Keep playing</button><button class="secondary-button" data-open="save">Save current game first</button></div>', 'NEW GAME');
     if (view.type === 'save') {
       setDialog('<h2 id="modal-title">Save or restore.</h2><label class="save-label" for="save-text">Campaign save text</label><textarea id="save-text" spellcheck="false"></textarea><p class="small muted">Classroom v3 saves only. Older treasury-rule saves need a new game.</p><div class="dialog-actions"><button class="primary-button" id="copy-save">Copy save text</button><button class="secondary-button" id="restore-save">Restore this text</button><button class="secondary-button" data-close>Return to map</button></div>', 'SAVE / RESTORE');
@@ -644,6 +660,7 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
     const target = event.target.closest('button,[data-map-city],[data-map-army]');
     if (!target || target.disabled) return;
     if (target.id === 'sound-toggle') { S.setEnabled(!S.isEnabled()); renderSound(); if (S.isEnabled()) { S.play('preview'); toast('Sound on. Moves, battles and outcomes play audio.'); } return; }
+    if (target.id === 'test-sound') { S.setEnabled(true); renderSound(); S.play('test').then(ok => { if (ok) toast('Sound test playing: marching, battle, then city captured.'); }); return; }
     if (target.matches('[data-open]')) { openView(target.dataset.open, target.dataset.open === 'atlas' ? { phase: game.year >= 1857 ? 'late' : 'early' } : {}); return; }
     if (target.matches('[data-close],.close-modal')) { closeDialog(); return; }
     if (target.matches('[data-year]')) { openView('event', { year: Number(target.dataset.year) }); return; }
@@ -670,7 +687,7 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
     if (target.matches('[data-atlas]')) { modalView.phase = target.dataset.atlas; renderModal(); return; }
     if (target.id === 'end-turn') {
       const result = E.endTurn(game); if (!result.ok) { toast(result.error); return; }
-      remember(); game = result.state; chooseActiveArmy(); render(); S.stop();
+      remember(); game = result.state; chooseActiveArmy(); render();
       S.play('turn', { previousCities: turnStartCities, cities: game.cities, side: game.turn, result: game.result });
       turnStartCities = E.copy(game.cities);
       if (game.result) openView('debrief'); else toast(game.year + ': ' + sideName(game.turn) + ' has 2 actions.');

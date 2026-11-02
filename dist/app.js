@@ -16,7 +16,7 @@
     $("toast").textContent = message; $("toast").classList.add("visible");
     clearTimeout(toastTimeout); toastTimeout = setTimeout(() => $("toast").classList.remove("visible"), 4500);
   }
-  S.setErrorHandler(() => toast("Audio could not play. Turn sound off and on, then try again."));
+  S.setErrorHandler(() => toast("Audio could not play. Open the settings button and choose Test sound to retry."));
   function renderSound() {
     const enabled = S.isEnabled(), button = $("sound-toggle");
     button.setAttribute("aria-pressed", String(enabled));
@@ -136,7 +136,7 @@
       setDialog('<h2 id="modal-title">The group\'s original maps.</h2><p class="dialog-intro">These historical scans are references. Live game ownership is shown by the coloured circles on the game board.</p><div class="atlas-picker"><button class="secondary-button" data-atlas="early">1851–1856</button><button class="secondary-button" data-atlas="late">1857 onwards</button></div><img class="source-map" src="' + mapAssets[late ? 'late' : 'early'] + '" alt="Original ' + (late ? 'later' : 'early') + ' campaign map supplied by the group">', 'HISTORICAL ATLAS', true);
     }
     if (view.type === 'journal') setDialog('<h2 id="modal-title">Game log.</h2><div class="full-log">' + game.log.slice().reverse().map(entry => '<div class="log-line"><span class="log-year">' + entry.year + '</span><span>' + esc(entry.message) + '</span></div>').join('') + '</div>', 'MOVES & CITY CONTROL');
-    if (view.type === 'settings') setDialog('<h2 id="modal-title">Host tools.</h2><p class="dialog-intro">Classroom v3: two actions per team per year. The current game stays in this browser tab. Copy a save before refreshing if you want to keep it.</p><div class="dialog-actions"><button class="primary-button" data-open="newconfirm">New game</button><button class="secondary-button" data-open="save">Save / restore text</button><button class="secondary-button" data-open="rules">Quick rules</button></div>', 'HOST TOOLS');
+    if (view.type === 'settings') setDialog('<h2 id="modal-title">Host tools.</h2><p class="dialog-intro">Classroom v3: two actions per team per year. The current game stays in this browser tab. Copy a save before refreshing if you want to keep it.</p><div class="dialog-actions"><button class="primary-button" data-open="newconfirm">New game</button><button class="secondary-button" data-open="save">Save / restore text</button><button class="secondary-button" data-open="rules">Quick rules</button></div><div class="dialog-section"><h3>Sound check</h3><p>Sound starts on. Test the marching, battle and capture clips before presenting. The test does not use an action.</p><button class="secondary-button" id="test-sound">Test sound</button></div>', 'HOST TOOLS');
     if (view.type === 'newconfirm') setDialog('<h2 id="modal-title">Start again in 1853?</h2><p class="dialog-intro">This replaces the current game with the classroom starting position. Sound keeps its current setting.</p><div class="dialog-actions"><button class="primary-button" id="confirm-new">Start new game</button><button class="secondary-button" data-close>Keep playing</button><button class="secondary-button" data-open="save">Save current game first</button></div>', 'NEW GAME');
     if (view.type === 'save') {
       setDialog('<h2 id="modal-title">Save or restore.</h2><label class="save-label" for="save-text">Campaign save text</label><textarea id="save-text" spellcheck="false"></textarea><p class="small muted">Classroom v3 saves only. Older treasury-rule saves need a new game.</p><div class="dialog-actions"><button class="primary-button" id="copy-save">Copy save text</button><button class="secondary-button" id="restore-save">Restore this text</button><button class="secondary-button" data-close>Return to map</button></div>', 'SAVE / RESTORE');
@@ -159,6 +159,7 @@
     const target = event.target.closest('button,[data-map-city],[data-map-army]');
     if (!target || target.disabled) return;
     if (target.id === 'sound-toggle') { S.setEnabled(!S.isEnabled()); renderSound(); if (S.isEnabled()) { S.play('preview'); toast('Sound on. Moves, battles and outcomes play audio.'); } return; }
+    if (target.id === 'test-sound') { S.setEnabled(true); renderSound(); S.play('test').then(ok => { if (ok) toast('Sound test playing: marching, battle, then city captured.'); }); return; }
     if (target.matches('[data-open]')) { openView(target.dataset.open, target.dataset.open === 'atlas' ? { phase: game.year >= 1857 ? 'late' : 'early' } : {}); return; }
     if (target.matches('[data-close],.close-modal')) { closeDialog(); return; }
     if (target.matches('[data-year]')) { openView('event', { year: Number(target.dataset.year) }); return; }
@@ -185,7 +186,7 @@
     if (target.matches('[data-atlas]')) { modalView.phase = target.dataset.atlas; renderModal(); return; }
     if (target.id === 'end-turn') {
       const result = E.endTurn(game); if (!result.ok) { toast(result.error); return; }
-      remember(); game = result.state; chooseActiveArmy(); render(); S.stop();
+      remember(); game = result.state; chooseActiveArmy(); render();
       S.play('turn', { previousCities: turnStartCities, cities: game.cities, side: game.turn, result: game.result });
       turnStartCities = E.copy(game.cities);
       if (game.result) openView('debrief'); else toast(game.year + ': ' + sideName(game.turn) + ' has 2 actions.');

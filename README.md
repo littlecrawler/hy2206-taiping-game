@@ -54,7 +54,7 @@ Click an army in the left roster, or click a friendly city containing your troop
 
 ## Sound and artwork
 
-Sound starts **off**. Click the sound control to enable it; a short marching preview confirms the switch. The game uses the group's seven supplied MP3s, with no synthesized audio.
+Sound starts **on** and begins playing when you perform a movement or battle action. Click the sound control to mute it. Settings → **Test sound** plays marching, battle and capture clips without spending an action. The game uses the group's seven supplied MP3s, with no synthesized audio.
 
 | Event | Audio |
 | --- | --- |
@@ -66,7 +66,7 @@ Sound starts **off**. Click the sound control to enable it; a short marching pre
 | Qing victory by final score | Qing Victory |
 | Final-score draw | Endgame |
 
-Audio never blocks an action. New audio replaces the previous sequence. Muting, undoing, restoring or starting a new game stops playback. Refreshing resets sound to off.
+Audio never blocks an action. A new move or battle replaces the previous sequence, but changing teams lets the current action and capture sounds finish; any turn-loss announcement follows them. Muting, undoing, restoring or starting a new game stops playback. Refreshing resets sound to on; loading the page alone does not autoplay audio.
 
 The supplied Taiping and Qing soldiers appear on the map and in the roster. Each team's victory shows its corresponding supplied picture. A draw currently uses a text result.
 
