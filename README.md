@@ -6,8 +6,6 @@ A two-team strategy game for a shared classroom screen. **Classroom v3** uses si
 
 [Play online](https://littlecrawler.github.io/hy2206-taiping-game/)
 
-Share with your team: [English rules checklist](Game-Rules.txt) · [中文规则清单](Game-Rules.zh-CN.txt).
-
 ## Play offline
 
 Open **Taiping-Classroom.html** in Chrome or Edge. This single file contains the game, both historical maps, seven supplied MP3 clips, two soldier icons and two victory pictures. Copying this one file to another computer is enough; no installation or internet is required.
@@ -34,12 +32,6 @@ There is no treasury, income, fortification, separate claim action or compulsory
 | Army strength | 6 + 4 = **10** | 5 + 5 + 2 = **12** |
 | Reinforcement tokens | **2** | **3** |
 
-Qing has a modest starting advantage in strength and tokens. All other cities start neutral. These are classroom balance choices, not historical troop counts or an exact map of territorial control.
-
-- **Reinforce:** spend one action and one token to add up to two strength to the selected army, capped at ten. Tokens do not refill.
-- **Attacker wins:** the attacker moves into and captures the city, loses one strength (minimum one), and the defending force loses two strength and retreats.
-- **Defender wins:** the attacker stays where it was and loses two strength. The defending force loses one strength, retaining at least one.
-- **Tie:** each force loses one strength; city control does not change.
 - Multiple armies in a city combine their strength when defending. Losses are taken from the strongest army first.
 - Retreat is automatic to the nearest friendly city; its route does not cost actions. If no friendly city remains, that army has zero strength.
 - An army with zero strength can return by reinforcing at a friendly city. If it cannot act, choose another army. Only when the entire team has no legal move, attack or reinforcement does **Pass action** appear; each pass consumes one action. Changing teams still requires zero actions remaining.
