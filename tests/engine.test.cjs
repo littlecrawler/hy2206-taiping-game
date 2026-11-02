@@ -102,6 +102,60 @@ test('zero-strength armies can reinforce and a team with no legal action can end
  assert.equal(s.turn,'qing'); assert.equal(s.ap,2); assert.equal(s.year,1853);
  assert.equal(E.parseSave(JSON.stringify(s)).ok,true);
 });
+
+test('entering 1859 adds two tokens to both teams without spending actions or changing armies',()=>{
+ for(const reserves of [{taiping:0,qing:0},{taiping:1,qing:2},{taiping:2,qing:3}]){
+  let s=atYear(1858); s.reserves=E.copy(reserves);
+  const taipingEnd=E.endTurn(s); assert.equal(taipingEnd.resupplied,false);
+  s=taipingEnd.state; assert.equal(s.year,1858); assert.deepEqual(s.reserves,reserves);
+  const before=JSON.stringify(s), r=E.endTurn(s);
+  assert.equal(r.ok,true); assert.equal(r.resupplied,true); assert.equal(JSON.stringify(s),before);
+  assert.equal(r.state.year,1859); assert.equal(r.state.turn,'taiping'); assert.equal(r.state.ap,2);
+  assert.deepEqual(r.state.reserves,{taiping:reserves.taiping+2,qing:reserves.qing+2});
+  assert.deepEqual(r.state.armies,s.armies); assert.equal(r.state.resupplyReceived,true);
+  assert.equal(E.parseSave(JSON.stringify(r.state)).ok,true);
+  // Undo restores the complete pre-handoff snapshot; replay cannot stack the bonus.
+  assert.deepEqual(E.endTurn(E.copy(s)).state,r.state);
+ }
+});
+
+test('the resupply is granted once across team handoffs, restores and later years',()=>{
+ let s=atYear(1859); assert.deepEqual(s.reserves,{taiping:4,qing:5});
+ s=act(s,'recruit','hong','tianjing').state;
+ const savedReserves=E.copy(s.reserves);
+ while(!s.result){
+  const loaded=E.parseSave(JSON.stringify(s)); assert.equal(loaded.ok,true); assert.equal(loaded.resupplied,false);
+  s=E.endTurn(loaded.state).state; assert.deepEqual(s.reserves,savedReserves);
+ }
+ assert.equal(s.log.filter(entry=>entry.message.startsWith('1859 resupply:')).length,1);
+});
+
+test('old v3 saves receive missing resupply only when eligible and never after a finished game',()=>{
+ const old=fresh(); delete old.resupplyReceived;
+ old.year=1858;
+ let loaded=E.parseSave(JSON.stringify(old)); assert.equal(loaded.ok,true); assert.equal(loaded.resupplied,false);
+ assert.deepEqual(loaded.state.reserves,{taiping:2,qing:3});
+ for(const year of [1859,1861]){
+  old.year=year; old.reserves={taiping:0,qing:1};
+  loaded=E.parseSave(JSON.stringify(old)); assert.equal(loaded.ok,true); assert.equal(loaded.resupplied,true);
+  assert.deepEqual(loaded.state.reserves,{taiping:2,qing:3});
+  const again=E.parseSave(JSON.stringify(loaded.state)); assert.equal(again.resupplied,false);
+  assert.deepEqual(again.state,loaded.state);
+ }
+ old.year=1864; old.turn='qing'; old.ap=0; old.result={reason:'cities',winner:null};
+ loaded=E.parseSave(JSON.stringify(old)); assert.equal(loaded.ok,true); assert.equal(loaded.resupplied,false);
+ assert.deepEqual(loaded.state.reserves,old.reserves);
+});
+
+test('save validation accepts the higher token totals only after a valid resupply',()=>{
+ let s=atYear(1859); assert.equal(E.parseSave(JSON.stringify(s)).ok,true);
+ for(const side of ['taiping','qing']){
+  const invalid=E.copy(s); invalid.reserves[side]++; assert.equal(E.parseSave(JSON.stringify(invalid)).ok,false);
+ }
+ s=fresh(); s.resupplyReceived=true; assert.equal(E.parseSave(JSON.stringify(s)).ok,false);
+ s=fresh(); s.reserves.taiping=3; assert.equal(E.parseSave(JSON.stringify(s)).ok,false);
+ s=atYear(1859); s.resupplyReceived='true'; assert.equal(E.parseSave(JSON.stringify(s)).ok,false);
+});
 test('1856 never locks the Taiping turn; history creates no deductions or bonuses',()=>{
  const opening=fresh(), s=atYear(1856);
  assert.equal(s.ap,2); assert.equal(s.turn,'taiping'); assert.equal('pending' in s,false);

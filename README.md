@@ -34,7 +34,7 @@ There is no treasury, income, fortification, separate claim action or compulsory
 
 Qing has a modest starting advantage in strength and tokens. All other cities start neutral. These are classroom balance choices, not historical troop counts or an exact map of territorial control.
 
-- **Reinforce**: spend one action and one token to add up to two strength to the selected army, capped at ten. Tokens do not refill.
+- **Reinforce**: spend one action and one token to add up to two strength to the selected army, capped at ten. At the start of **1859**, both teams receive **2 additional reinforcement tokens**, added to any tokens they still have. This supply bonus happens once; other years do not refill tokens.
 - **Attacker wins**: the attacker moves into and captures the city, loses one strength (minimum one), and the defending force loses two strength and retreats.
 - **Defender wins**: the attacker stays where it was and loses two strength. The defending force loses one strength, retaining at least one.
 - **Tie**: each force loses one strength; city control does not change.
@@ -79,6 +79,8 @@ The current game lives in the browser tab. **Refreshing or closing the page clea
 Open the settings button → **Save / restore text**, then copy the save into your own notes. Paste it back and choose **Restore this text** to continue. Saves include the dice sequence, so undoing and repeating a battle gives the same dice.
 
 **Version 1 and 2 saves use the old treasury rules and cannot be restored in Classroom v3. Start a new game for this edition.** Version 3 saves preserve the remaining actions in that turn.
+
+Older version 3 saves from 1859 onward receive the missing supply bonus once when restored, provided the game is still in progress. New saves remember whether it has already been received.
 
 ## Edit, build and verify
 

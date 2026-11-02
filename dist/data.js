@@ -7,6 +7,7 @@
     actionsPerTurn: 2,
     maxStrength: 10,
     startingReserves: { taiping: 2, qing: 3 },
+    resupply: { year: 1859, tokens: 2 },
     factions: {
       taiping: { name: "Taiping Heavenly Kingdom", short: "Taiping", chinese: "太平天国", capital: "tianjing", color: "#a43e32" },
       qing: { name: "Qing Dynasty", short: "Qing", chinese: "清朝", capital: "beijing", color: "#30546a" }

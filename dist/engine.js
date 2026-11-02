@@ -19,7 +19,7 @@
   function createGame(options) {
     const state = {
       version: D.version, year: D.startYear, turn: "taiping", ap: D.actionsPerTurn,
-      reserves: copy(D.startingReserves), cities: {}, armies: copy(D.armies),
+      reserves: copy(D.startingReserves), resupplyReceived: false, cities: {}, armies: copy(D.armies),
       seed: ((options || {}).seed === undefined ? Date.now() : options.seed) >>> 0,
       result: null, log: []
     };
@@ -151,8 +151,16 @@
     const newYear = state.turn === "qing";
     if (newYear) state.year++;
     state.turn = other(state.turn); state.ap = D.actionsPerTurn;
+    const resupplied = grantResupply(state);
     log(state, D.factions[state.turn].short + " acts in " + state.year + ": 2 actions available.");
-    return { ok: true, state, newYear };
+    return { ok: true, state, newYear, resupplied };
+  }
+  function grantResupply(state) {
+    if (state.result || state.year < D.resupply.year || state.resupplyReceived) return false;
+    for (const side of ["taiping", "qing"]) state.reserves[side] += D.resupply.tokens;
+    state.resupplyReceived = true;
+    log(state, D.resupply.year + " resupply: Taiping and Qing each receive " + D.resupply.tokens + " reinforcement tokens.");
+    return true;
   }
   function parseSave(text) {
     let saved;
@@ -160,7 +168,9 @@
     if (saved && [1, 2].includes(saved.version)) return { ok: false, error: "This save uses the older treasury rules. Start a new game for the two-action classroom edition." };
     const integer = (n, max) => Number.isSafeInteger(n) && n >= 0 && n <= max;
     if (!saved || saved.version !== D.version || !Number.isSafeInteger(saved.year) || !integer(saved.year - D.startYear, D.endYear - D.startYear) || !["taiping", "qing"].includes(saved.turn) || !integer(saved.ap, D.actionsPerTurn)) return { ok: false, error: "Invalid version, year or turn." };
-    if (!saved.reserves || !["taiping", "qing"].every(side => integer(saved.reserves[side], D.startingReserves[side]))) return { ok: false, error: "Invalid reinforcement tokens." };
+    if ((saved.resupplyReceived !== undefined && typeof saved.resupplyReceived !== "boolean") || (saved.resupplyReceived && saved.year < D.resupply.year)) return { ok: false, error: "Invalid resupply status." };
+    const tokenBonus = saved.resupplyReceived ? D.resupply.tokens : 0;
+    if (!saved.reserves || !["taiping", "qing"].every(side => integer(saved.reserves[side], D.startingReserves[side] + tokenBonus))) return { ok: false, error: "Invalid reinforcement tokens." };
     if (!saved.cities || !D.cities.every(city => saved.cities[city.id] && [null, "taiping", "qing"].includes(saved.cities[city.id].owner))) return { ok: false, error: "Invalid city control." };
     if (!Array.isArray(saved.armies) || saved.armies.length !== D.armies.length || !D.armies.every(unit => {
       const matches = saved.armies.filter(army => army && army.id === unit.id);
@@ -178,6 +188,7 @@
     if (saved.cities.beijing.owner === "taiping" && (!saved.result || saved.result.reason !== "beijing")) return { ok: false, error: "Capturing Beijing must end the game." };
     const clean = createGame({ seed: saved.seed });
     for (const key of ["year", "turn", "ap", "reserves", "result"]) clean[key] = copy(saved[key]);
+    clean.resupplyReceived = saved.resupplyReceived === true;
     D.cities.forEach(city => { clean.cities[city.id] = { owner: saved.cities[city.id].owner }; });
     clean.armies = D.armies.map(unit => {
       const army = saved.armies.find(savedArmy => savedArmy.id === unit.id);
@@ -185,7 +196,8 @@
     });
     if (clean.result) clean.result.scores = total;
     clean.log = Array.isArray(saved.log) ? saved.log.filter(entry => entry && typeof entry.message === "string" && integer(entry.year - D.startYear, 11) && ["taiping", "qing"].includes(entry.side)).slice(-100).map(entry => ({ year: entry.year, side: entry.side, message: entry.message.slice(0, 1000) })) : [];
-    return { ok: true, state: clean };
+    const resupplied = grantResupply(clean);
+    return { ok: true, state: clean, resupplied };
   }
   const api = { createGame, check, applyAction, endTurn, battlePreview, actionFor, hasLegalAction, cityCount, scores, strength, armyById, troopsAt, parseSave, copy };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

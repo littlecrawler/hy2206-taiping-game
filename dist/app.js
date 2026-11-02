@@ -53,6 +53,7 @@
       : 'Both actions used. Click Next team: ' + sideName(nextSide) + '.';
     $("turn-banner").style.setProperty('--turn-color', color(side));
     $("turn-banner").innerHTML = '<div class="turn-banner-team">' + (side ? '<img src="' + imageAsset(side + '-troop') + '" alt="">' : '') + '<div><p class="turn-banner-year">' + game.year + ' · YEAR ' + (game.year - D.startYear + 1) + ' OF 12</p><h2>' + title + '</h2></div></div><div class="turn-banner-progress"><strong>' + remaining + '</strong><span>' + detail + '</span></div>';
+    if (!game.result && game.year === D.resupply.year && game.resupplyReceived) $("turn-banner").querySelector('.turn-banner-progress').insertAdjacentHTML('beforeend', '<span>' + D.resupply.year + ' resupply received: +' + D.resupply.tokens + ' tokens per team.</span>');
     $("orders-title").textContent = game.result ? 'Game complete' : sideName(game.turn) + ' orders';
   }
   function renderMap() {
@@ -117,7 +118,7 @@
   }
   function openView(type, extra) { modalView = { type, ...extra }; renderModal(); $("modal").scrollTop = 0; }
   function rulesHtml() {
-    return '<h2 id="modal-title">Learn the game in 30 seconds.</h2><div class="quick-rules"><div><b>1. Up to two actions each year</b><p>1853–1864: Taiping goes first, then Qing. Each team has up to two actions, shared across its armies. Click End turn early to skip unused actions, or Next team after using both. Unused actions do not carry over.</p></div><div><b>2. Take cities</b><p>Choose your army, then a connected city. Moving into an empty city captures it automatically. Red = Taiping. Blue = Qing.</p></div><div><b>3. Battles: strength + die</b><p>Each team rolls one die. Higher total wins; a tie leaves control unchanged. The game handles casualties and retreats.</p></div><div><b>4. How to win</b><p>Most cities after Qing\'s 1864 turn wins. A tie is a draw. <strong>Northern bonus: Taiping wins immediately by capturing Beijing.</strong> Capturing Tianjing counts as one city; the game continues.</p></div></div><div class="notice"><b>Reinforcements:</b> one token adds up to 2 strength, maximum 10 per army. Each reinforcement uses one action. Taiping starts with 10 strength and 2 tokens; Qing with 12 strength and 3 tokens. Both start with 3 cities. Tokens do not refill.</div><p class="small muted">No money, taxes, forts or mandatory history choices. Historical cards never block your turn.</p><div class="dialog-actions"><button class="primary-button" data-close>Ready to play ' + icon('arrow') + '</button></div>';
+    return '<h2 id="modal-title">Learn the game in 30 seconds.</h2><div class="quick-rules"><div><b>1. Up to two actions each year</b><p>1853–1864: Taiping goes first, then Qing. Each team has up to two actions, shared across its armies. Click End turn early to skip unused actions, or Next team after using both. Unused actions do not carry over.</p></div><div><b>2. Take cities</b><p>Choose your army, then a connected city. Moving into an empty city captures it automatically. Red = Taiping. Blue = Qing.</p></div><div><b>3. Battles: strength + die</b><p>Each team rolls one die. Higher total wins; a tie leaves control unchanged. The game handles casualties and retreats.</p></div><div><b>4. How to win</b><p>Most cities after Qing\'s 1864 turn wins. A tie is a draw. <strong>Northern bonus: Taiping wins immediately by capturing Beijing.</strong> Capturing Tianjing counts as one city; the game continues.</p></div></div><div class="notice"><b>Reinforcements:</b> one token adds up to 2 strength, maximum 10 per army. Each reinforcement uses one action. Taiping starts with 10 strength and 2 tokens; Qing with 12 strength and 3 tokens. Both start with 3 cities. At the start of 1859, both teams receive 2 extra tokens, added to any remaining tokens. This bonus happens once.</div><p class="small muted">No money, taxes, forts or mandatory history choices. Historical cards never block your turn.</p><div class="dialog-actions"><button class="primary-button" data-close>Ready to play ' + icon('arrow') + '</button></div>';
   }
   function battleHtml() {
     const view = modalView, unit = E.armyById(game, view.armyId), battle = view.battle;
@@ -204,7 +205,7 @@
       remember(); game = result.state; chooseActiveArmy(); render();
       S.play('turn', { previousCities: turnStartCities, cities: game.cities, side: game.turn, result: game.result });
       turnStartCities = E.copy(game.cities);
-      if (game.result) openView('debrief'); else toast(game.year + ': ' + sideName(game.turn) + ' has 2 actions.');
+      if (game.result) openView('debrief'); else toast(result.resupplied ? D.resupply.year + ' resupply: both teams receive +' + D.resupply.tokens + ' reinforcement tokens.' : game.year + ': ' + sideName(game.turn) + ' has 2 actions.');
       return;
     }
     if (target.id === 'undo') {
@@ -221,7 +222,7 @@
     }
     if (target.id === 'restore-save') {
       const result = E.parseSave($("save-text").value); if (!result.ok) { toast(result.error); return; }
-      remember(); S.stop(); game = result.state; turnStartCities = E.copy(game.cities); lastCapture = null; chooseActiveArmy(); zoom = 1; closeDialog(); render(); if (game.result) openView('debrief'); toast('Classroom game restored.'); return;
+      remember(); S.stop(); game = result.state; turnStartCities = E.copy(game.cities); lastCapture = null; chooseActiveArmy(); zoom = 1; closeDialog(); render(); if (game.result) openView('debrief'); toast(result.resupplied ? 'Game restored. ' + D.resupply.year + ' resupply added: +' + D.resupply.tokens + ' tokens per team.' : 'Classroom game restored.'); return;
     }
     if (target.id === 'fullscreen') {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => toast('Use your browser fullscreen control.'));
