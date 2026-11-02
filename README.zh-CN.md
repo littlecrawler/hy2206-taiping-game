@@ -42,7 +42,15 @@
 - 撤退自动前往最近的己方城市，不消耗行动，也不受沿途城市归属限制。没有己方城市可撤退时，该军队兵力归零。
 - 零兵力军队可以在己方城市通过增援恢复。无法行动时，可换另一支军队，或点击 **End turn early** 提前结束回合。
 
-北伐路线为：天京 → 合肥 → 开封 → 怀庆 → 临清 → 沧州 → 天津 → 北京。每经过一条连接消耗 1 次行动。
+## 三条进军路线
+
+| 路线 | 城市与连接 | 战略重点 |
+| --- | --- | --- |
+| 北伐（Northern Expedition） | 天京 Tianjing → 合肥 Hefei → 开封 Kaifeng → 怀庆 Huaiqing → 临清 Linqing → 沧州 Cangzhou → 天津 Tianjin → 北京 Beijing | 向北京推进。太平军占领北京后立即获胜。 |
+| 西征（Western Expedition） | 天京 Tianjing → 安庆 Anqing → 九江 Jiujiang → 武昌 Wuchang → 长沙 Changsha | 沿长江一线向西扩张，再向长沙推进，通过占领城市积累最终分数。 |
+| 东征（Eastern Campaign） | 天京 Tianjing → 苏州 Suzhou → 杭州 Hangzhou → 宁波 Ningbo；支线：苏州 Suzhou → 上海 Shanghai | 争夺东部城市，也可从苏州转向上海支线。每座占领的城市增加 1 分。 |
+
+每次沿**一条连接移动或进攻，消耗 1 次行动**。双方都可使用相连路线，也可以改变进军方向。North、West、East 按钮用于突出显示路线，选择后仍可沿其他相连路线行动。西征、东征占领的城市计入最终比分；太平军占领北京则触发特殊的立即获胜条件。
 
 ## 看懂地图与操作
 

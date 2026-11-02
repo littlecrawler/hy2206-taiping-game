@@ -42,7 +42,15 @@ Qing has a modest starting advantage in strength and tokens. All other cities st
 - Retreat is automatic to the nearest friendly city; its route does not cost actions. If no friendly city remains, that army has zero strength.
 - An army with zero strength can return by reinforcing at a friendly city. If it cannot act, choose another army or click **End turn early**.
 
-The northern route is Tianjing → Hefei → Kaifeng → Huaiqing → Linqing → Cangzhou → Tianjin → Beijing. One connection takes one action.
+## The three campaign routes
+
+| Route | Cities and connections | Strategic focus |
+| --- | --- | --- |
+| Northern Expedition | Tianjing 天京 → Hefei 合肥 → Kaifeng 开封 → Huaiqing 怀庆 → Linqing 临清 → Cangzhou 沧州 → Tianjin 天津 → Beijing 北京 | Advance toward Beijing. Taiping wins immediately if it captures Beijing. |
+| Western Expedition | Tianjing 天京 → Anqing 安庆 → Jiujiang 九江 → Wuchang 武昌 → Changsha 长沙 | Expand west through the Yangtze corridor toward Changsha and gain cities for the final score. |
+| Eastern Campaign | Tianjing 天京 → Suzhou 苏州 → Hangzhou 杭州 → Ningbo 宁波; branch: Suzhou 苏州 → Shanghai 上海 | Expand through the eastern cities, with Shanghai available as a branch from Suzhou. Each captured city adds one point. |
+
+Each move or attack across **one connection costs 1 action**. Both teams can use any connected route and change direction. The North, West and East buttons highlight the routes; choosing a highlight does not restrict movement. Western and eastern captures contribute to the final city score; the Taiping capture of Beijing is the special immediate-win condition.
 
 ## Reading and operating the map
 
