@@ -48,7 +48,7 @@
     const title = game.result ? (side ? sideName(side) + ' wins!' : 'Draw') : sideName(side) + "'s turn";
     const remaining = game.result ? 'Game complete' : game.ap + ' / ' + D.actionsPerTurn + ' actions left';
     const detail = game.result ? 'Final score: Taiping ' + E.cityCount(game, 'taiping') + ' · Qing ' + E.cityCount(game, 'qing')
-      : game.ap ? sideName(nextSide) + ' waits. Use both actions before changing teams.'
+      : game.ap ? (finalTurn ? 'Use actions or End turn early to see the final score.' : 'Use actions or End turn early to hand over to ' + sideName(nextSide) + '.')
       : finalTurn ? 'Both actions used. Click Show final score.'
       : 'Both actions used. Click Next team: ' + sideName(nextSide) + '.';
     $("turn-banner").style.setProperty('--turn-color', color(side));
@@ -86,7 +86,7 @@
   function renderOrders() {
     const unit = army(), owner = game.cities[selectedCity].owner, targetAction = E.actionFor(game, selectedArmy, selectedCity);
     const travel = E.check(game, targetAction, selectedArmy, selectedCity), recruit = E.check(game, 'recruit', selectedArmy, unit.city);
-    const mustPass = !game.result && game.ap > 0 && !E.hasLegalAction(game);
+    const cannotAct = !game.result && game.ap > 0 && !E.hasLegalAction(game);
     const taking = owner !== unit.faction;
     const travelLabel = selectedCity === unit.city ? 'Choose a destination' : targetAction === 'attack' ? 'Attack city' : taking ? 'Move & capture' : 'Move army';
     $("ap-label").textContent = game.result ? 'GAME COMPLETE' : game.ap ? game.ap + (game.ap === 1 ? ' ACTION LEFT' : ' ACTIONS LEFT') : 'ACTIONS USED';
@@ -96,10 +96,9 @@
       return '<button data-destination="' + id + '" class="destination-button' + (selectedCity === id ? ' chosen' : '') + '" aria-pressed="' + (selectedCity === id) + '"><b>' + esc(cityName(id)) + '</b><span>' + (enemy ? 'Enemy army · ' + enemy + ' strength' : game.cities[id].owner === unit.faction ? 'Friendly city' : 'Empty city · capture on arrival') + '</span></button>';
     }).join('') + '</div>';
     $("actions").innerHTML = '<button class="action-button" data-action="' + targetAction + '"' + (travel.ok ? '' : ' disabled') + ' title="' + esc(travel.reason) + '">' + icon(targetAction) + '<span class="action-name">' + travelLabel + '</span><span class="cost">1 action</span></button><button class="action-button" data-action="recruit"' + (recruit.ok ? '' : ' disabled') + ' title="' + esc(recruit.reason) + '">' + icon('recruit') + '<span class="action-name">Reinforce +' + Math.max(0, Math.min(2, 10 - unit.strength)) + '</span><span class="cost">1 action + 1 token</span></button>';
-    if (mustPass) $("actions").innerHTML += '<button class="action-button" data-pass><span class="action-name">Pass action</span><span class="cost">1 action</span></button>';
-    $("action-hint").textContent = game.result ? 'Game complete. Open Results to see the outcome.' : !game.ap ? 'Both actions are complete. Click Next team to continue.' : mustPass ? 'No army can move, attack or reinforce. Pass this action to continue.' : !unit.strength ? 'This army has no strength. Reinforce it with a token, or choose another army.' : selectedCity === unit.city ? 'Choose a connected destination above, or reinforce this army.' : travel.reason;
-    $("end-turn").disabled = Boolean(game.result) || game.ap > 0;
-    $("end-turn").innerHTML = game.result ? 'Game complete' : game.ap ? 'Use ' + game.ap + (game.ap === 1 ? ' more action first' : ' actions first') : (game.turn === 'qing' && game.year === 1864 ? 'Show final score ' : 'Next team: ' + sideName(game.turn === 'taiping' ? 'qing' : 'taiping') + ' ') + icon('arrow');
+    $("action-hint").textContent = game.result ? 'Game complete. Open Results to see the outcome.' : !game.ap ? 'Both actions are complete. Click Next team to continue.' : cannotAct ? 'No army can move, attack or reinforce. Click End turn early to continue.' : !unit.strength ? 'This army has no strength. Reinforce it with a token, choose another army, or end the turn early.' : selectedCity === unit.city ? 'Choose a connected destination above, reinforce this army, or end the turn early.' : travel.reason;
+    $("end-turn").disabled = Boolean(game.result);
+    $("end-turn").innerHTML = game.result ? 'Game complete' : game.ap ? 'End turn early ' + icon('arrow') : (game.turn === 'qing' && game.year === 1864 ? 'Show final score ' : 'Next team: ' + sideName(game.turn === 'taiping' ? 'qing' : 'taiping') + ' ') + icon('arrow');
     $("undo").disabled = undoStack.length === 0;
   }
   function renderEvent() {
@@ -118,7 +117,7 @@
   }
   function openView(type, extra) { modalView = { type, ...extra }; renderModal(); $("modal").scrollTop = 0; }
   function rulesHtml() {
-    return '<h2 id="modal-title">Learn the game in 30 seconds.</h2><div class="quick-rules"><div><b>1. Two actions each year</b><p>1853–1864: Taiping uses both actions, then Qing uses both actions. Share them across your armies. Next team unlocks only when no actions remain. If your whole team cannot act, use Pass action.</p></div><div><b>2. Take cities</b><p>Choose your army, then a connected city. Moving into an empty city captures it automatically. Red = Taiping. Blue = Qing.</p></div><div><b>3. Battles: strength + die</b><p>Each team rolls one die. Higher total wins; a tie leaves control unchanged. The game handles casualties and retreats.</p></div><div><b>4. How to win</b><p>Most cities after Qing\'s 1864 turn wins. A tie is a draw. <strong>Northern bonus: Taiping wins immediately by capturing Beijing.</strong> Capturing Tianjing counts as one city; the game continues.</p></div></div><div class="notice"><b>Reinforcements:</b> one token adds up to 2 strength, maximum 10 per army. Each reinforcement uses one action. Taiping starts with 10 strength and 2 tokens; Qing with 12 strength and 3 tokens. Both start with 3 cities. Tokens do not refill.</div><p class="small muted">No money, taxes, forts or mandatory history choices. Historical cards never block your turn.</p><div class="dialog-actions"><button class="primary-button" data-close>Ready to play ' + icon('arrow') + '</button></div>';
+    return '<h2 id="modal-title">Learn the game in 30 seconds.</h2><div class="quick-rules"><div><b>1. Up to two actions each year</b><p>1853–1864: Taiping goes first, then Qing. Each team has up to two actions, shared across its armies. Click End turn early to skip unused actions, or Next team after using both. Unused actions do not carry over.</p></div><div><b>2. Take cities</b><p>Choose your army, then a connected city. Moving into an empty city captures it automatically. Red = Taiping. Blue = Qing.</p></div><div><b>3. Battles: strength + die</b><p>Each team rolls one die. Higher total wins; a tie leaves control unchanged. The game handles casualties and retreats.</p></div><div><b>4. How to win</b><p>Most cities after Qing\'s 1864 turn wins. A tie is a draw. <strong>Northern bonus: Taiping wins immediately by capturing Beijing.</strong> Capturing Tianjing counts as one city; the game continues.</p></div></div><div class="notice"><b>Reinforcements:</b> one token adds up to 2 strength, maximum 10 per army. Each reinforcement uses one action. Taiping starts with 10 strength and 2 tokens; Qing with 12 strength and 3 tokens. Both start with 3 cities. Tokens do not refill.</div><p class="small muted">No money, taxes, forts or mandatory history choices. Historical cards never block your turn.</p><div class="dialog-actions"><button class="primary-button" data-close>Ready to play ' + icon('arrow') + '</button></div>';
   }
   function battleHtml() {
     const view = modalView, unit = E.armyById(game, view.armyId), battle = view.battle;
@@ -199,11 +198,6 @@
       return;
     }
     if (target.matches('[data-roll]')) { perform('attack'); return; }
-    if (target.matches('[data-pass]')) {
-      const result = E.passAction(game); if (!result.ok) { toast(result.error); return; }
-      remember(); game = result.state; render();
-      toast(game.ap ? 'Action passed. Pass the remaining action to continue.' : 'Both actions are complete. Click Next team.'); return;
-    }
     if (target.matches('[data-atlas]')) { modalView.phase = target.dataset.atlas; renderModal(); return; }
     if (target.id === 'end-turn') {
       const result = E.endTurn(game); if (!result.ok) { toast(result.error); return; }

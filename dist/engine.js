@@ -63,14 +63,6 @@
       D.neighbours[army.city].some(target => check(state, actionFor(state, army.id, target), army.id, target).ok)
     ));
   }
-  function passAction(input) {
-    if (input.result || input.ap < 1) return { ok: false, error: "There are no actions left to pass." };
-    if (hasLegalAction(input)) return { ok: false, error: "Your team can still act. Move, attack or reinforce before changing teams." };
-    const state = copy(input);
-    state.ap--;
-    log(state, D.factions[state.turn].short + " passes one action: no army can move, attack or reinforce.");
-    return { ok: true, state };
-  }
   function damage(armies, amount) {
     armies.slice().sort((a, b) => b.strength - a.strength).forEach(army => {
       const lost = Math.min(amount, army.strength);
@@ -147,8 +139,8 @@
   }
   function endTurn(input) {
     if (input.result) return { ok: false, error: "This game is already complete." };
-    if (input.ap !== 0) return { ok: false, error: "Use both actions before changing teams. " + input.ap + (input.ap === 1 ? " action remains." : " actions remain.") };
     const state = copy(input);
+    if (state.ap > 0) log(state, D.factions[state.turn].short + " ends its turn early with " + state.ap + (state.ap === 1 ? " unused action." : " unused actions."));
     if (state.turn === "qing" && state.year === D.endYear) {
       const total = scores(state);
       state.result = { winner: total.taiping === total.qing ? null : total.taiping > total.qing ? "taiping" : "qing", reason: "cities", scores: total };
@@ -195,7 +187,7 @@
     clean.log = Array.isArray(saved.log) ? saved.log.filter(entry => entry && typeof entry.message === "string" && integer(entry.year - D.startYear, 11) && ["taiping", "qing"].includes(entry.side)).slice(-100).map(entry => ({ year: entry.year, side: entry.side, message: entry.message.slice(0, 1000) })) : [];
     return { ok: true, state: clean };
   }
-  const api = { createGame, check, applyAction, endTurn, battlePreview, actionFor, hasLegalAction, passAction, cityCount, scores, strength, armyById, troopsAt, parseSave, copy };
+  const api = { createGame, check, applyAction, endTurn, battlePreview, actionFor, hasLegalAction, cityCount, scores, strength, armyById, troopsAt, parseSave, copy };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TaipingEngine = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
