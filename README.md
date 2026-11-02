@@ -1,132 +1,119 @@
-# The Taiping Rebellion — HY2206 Campaign Table
+# The Taiping Rebellion — HY2206 Classroom Game
 
 **English** | [简体中文](README.zh-CN.md)
 
-A strategy game about the Taiping Rebellion for a classroom activity with two teams and one shared screen. The interface, rules and historical event explanations are in English. Every playable city has both an English and a Chinese label.
+A two-team strategy game for a shared classroom screen. **Classroom v3** uses simplified rules: **1853–1864, two actions per team each year**. The interface is in English, with English and Chinese city names.
 
-## Getting started
+[Play online](https://littlecrawler.github.io/hy2206-taiping-game/)
 
-For offline classroom use, open **Taiping-Classroom.html** in your browser. This single file includes both maps and all seven audio clips; copying it to another computer is enough to play with sound.
+## Play offline
 
-The files in dist/ provide the version for editing. You can also open dist/index.html directly; copy the entire dist folder when transferring this version to another computer.
+Open **Taiping-Classroom.html** in Chrome or Edge. This single file contains the game, both historical maps, seven supplied MP3 clips, two soldier icons and two victory pictures. Copying this one file to another computer is enough; no installation or internet is required.
 
-The game needs no installation or internet connection. The optional preview, verification and build commands below require Node.js.
+The root **index.html** is an identical copy for GitHub Pages. The editable version is in **dist/**; keep that whole folder together when using it separately.
 
-To preview the game at a local address, run this command from the project directory:
+## Explain the game in 30 seconds
+
+1. Taiping plays first, then Qing. Each team has **two actions per year**, shared across all its armies.
+2. Select your army, then a connected city. **Move** into an empty city to capture it automatically; **attack** if an enemy army is there.
+3. In battle, each side adds one six-sided die to its strength. The higher total wins. The game handles losses and retreats.
+4. After Qing finishes in **1864**, the team with more cities wins. Each city is one point; equal scores are a draw.
+5. **Northern bonus:** Taiping wins immediately by capturing Beijing 北京. Qing capturing Tianjing 天京 earns one city and the game continues.
+
+Each move, attack or reinforcement uses **one action**. You can use both actions with the same army, split them between armies, or end your turn early.
+
+There is no treasury, income, fortification, separate claim action or compulsory historical decision. History cards provide context and never block play.
+
+## Starting position and battle details
+
+| | Taiping | Qing |
+| --- | --- | --- |
+| Starting cities | Tianjing 天京, Anqing 安庆, Hefei 合肥 | Beijing 北京, Jiangnan Camp 江南大营, Changsha 长沙 |
+| Army strength | 6 + 4 = **10** | 5 + 5 + 2 = **12** |
+| Reinforcement tokens | **2** | **3** |
+
+Qing has a modest starting advantage in strength and tokens. All other cities start neutral. These are classroom balance choices, not historical troop counts or an exact map of territorial control.
+
+- **Reinforce:** spend one action and one token to add up to two strength to the selected army, capped at ten. Tokens do not refill.
+- **Attacker wins:** the attacker moves into and captures the city, loses one strength (minimum one), and the defending force loses two strength and retreats.
+- **Defender wins:** the attacker stays where it was and loses two strength. The defending force loses one strength, retaining at least one.
+- **Tie:** each force loses one strength; city control does not change.
+- Multiple armies in a city combine their strength when defending. Losses are taken from the strongest army first.
+- Retreat is automatic to the nearest friendly city; its route does not cost actions. If no friendly city remains, that army has zero strength.
+- An army with zero strength can return by reinforcing at a friendly city. If it cannot act, choose another army or end the turn.
+
+The northern route is Tianjing → Hefei → Kaifeng → Huaiqing → Linqing → Cangzhou → Tianjin → Beijing. One connection takes one action.
+
+## Reading and operating the map
+
+**Red circles and labels = Taiping control. Blue = Qing. Grey = neutral.** Soldier portraits show the armies' current locations; the number on each portrait is its strength. A city remains yours when its army leaves.
+
+Click an army in the left roster, or click a friendly city containing your troops. Use **Connected destinations** on the right to choose where that army should go. The available move/attack button follows the destination. Capturing a city updates its colour, the army position, the score and the capture message together.
+
+**Quick rules** opens the short explanation. **Historical atlas** shows the original maps. The year markers open history cards. **Results** shows the current score or final outcome. Undo, fullscreen, the campaign log and text saves are also available.
+
+## Sound and artwork
+
+Sound starts **off**. Click the sound control to enable it; a short marching preview confirms the switch. The game uses the group's seven supplied MP3s, with no synthesized audio.
+
+| Event | Audio |
+| --- | --- |
+| Move | Marching, a 2.5-second excerpt |
+| Battle | Sword fighting, a 3-second excerpt |
+| Capture | City Captured, after movement or battle |
+| A defending team's next turn after losing a city | City Lost, once per turn |
+| Taiping victory, by Beijing capture or final score | Taiping Victory |
+| Qing victory by final score | Qing Victory |
+| Final-score draw | Endgame |
+
+Audio never blocks an action. New audio replaces the previous sequence. Muting, undoing, restoring or starting a new game stops playback. Refreshing resets sound to off.
+
+The supplied Taiping and Qing soldiers appear on the map and in the roster. Each team's victory shows its corresponding supplied picture. A draw currently uses a text result.
+
+## Save and restore
+
+The current game lives in the browser tab. **Refreshing or closing the page clears it.**
+
+Open the settings button → **Save / restore text**, then copy the save into your own notes. Paste it back and choose **Restore this text** to continue. Saves include the dice sequence, so undoing and repeating a battle gives the same dice.
+
+**Version 1 and 2 saves use the old treasury rules and cannot be restored in Classroom v3. Start a new game for this edition.** Version 3 saves preserve the remaining actions in that turn.
+
+## Edit, build and verify
+
+Node.js is only needed for development commands; there are no package dependencies.
 
     node preview.mjs
 
-Open the address printed in the terminal, normally http://127.0.0.1:8766. Press Ctrl+C to stop the preview. If the port is busy, run node preview.mjs 8767. A preview server is optional for offline play.
+Open the address printed in the terminal, normally http://127.0.0.1:8766. To use another port, run **node preview.mjs 8767**. Stop the server with Ctrl+C.
 
-## GitHub Pages
-
-The repository's root **index.html** is the game homepage. It contains the same game as Taiping-Classroom.html. The .nojekyll file lets GitHub Pages serve the files directly.
-
-1. Commit and push the root index.html and .nojekyll files to the main branch.
-2. Open the repository's **Settings → Pages**.
-3. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
-4. Select **main** and **/(root)**, then click **Save**.
-5. After deployment completes, click **Visit site** to open the game.
-
-See the [official GitHub Pages instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
-
-## Classroom play
-
-1. Divide the class into Taiping and Qing teams. A host operates the game on one computer. There is no automated opponent.
-2. Select an army from the active side on the left, select a city on the map, then choose an enabled action on the right.
-3. Each side shares 3 action points (AP) across all its armies each year. Taiping starts with two armies; Qing has two field armies and a small Beijing garrison. A side may end its turn early.
-4. Attacks first show both sides' forces and modifiers. Clicking **Roll & resolve battle** pays the cost, rolls the dice and resolves combat.
-5. After both sides finish, the game advances to the next year and displays its historical event. In 1856, the Taiping must choose a response to the Tianjing Incident.
-6. Open **Debrief** to compare your campaign with the historical outcome. **Historical atlas** shows both original maps.
-
-Use the fullscreen button in the top-right corner for projection. The game also includes a 60-second discussion timer, undo and a campaign log. Debrief is available in any year; set a time limit after a rehearsal so that playing every round does not crowd out historical discussion.
-
-Historical event cards show the background, game effect and any required decision, without the former “Discuss with your team” prompts. The separate Debrief remains available.
-
-Sound starts **off**. Click **Sound off** in the toolbar to enable it; a short marching preview confirms the switch. Audio uses the seven MP3 files supplied by the group, at full playback volume. The computer's volume still controls the final listening level.
-
-| When it plays | Supplied audio |
-| --- | --- |
-| Move an army | `soldiers-marching-soundbible (1).mp3` (2.5-second excerpt) |
-| Roll & resolve battle | `sword-fast-fight.mp3` (3-second excerpt) |
-| Claim a neutral city or successfully capture a city | `City Captured.mp3`; after battle sounds when attacking |
-| The defending team's next turn begins after losing a city | `City Lost.mp3` (once per turn) |
-| Taiping captures Beijing and wins | `Taiping Victory.mp3`, after the battle sounds |
-| Qing captures Tianjing and wins | `Qing Victory.mp3`, after the battle sounds |
-| The campaign reaches its 1864 stalemate | `Endgame.mp3` |
-
-Audio never delays game actions. A new sound replaces the previous sequence; muting, undoing, restoring or starting a new campaign stops playback immediately. Winning a capital uses the faction victory track instead of the ordinary capture cue. Failed attacks and ties do not play capture/loss announcements. Selecting cities, opening history cards, recruiting and fortifying remain silent. Refreshing resets sound to off; restore starts a fresh turn-loss comparison without replaying old events.
-
-## Saving and restoring
-
-The campaign is stored in the current tab's memory. Refreshing or closing the page clears the game.
-
-Open settings in the top-right corner and choose **Save / restore text**. Copy the save text into your own notes. To resume, paste it back and click **Restore this text**.
-
-This version does not automatically write persistent browser storage or download save files. Save text includes the dice sequence, so undoing and repeating the same battle produces the same dice results.
-
-Original version-1 saves are upgraded on restore: Huaiqing, Linqing and Cangzhou are added as neutral cities, and a 2-strength Beijing garrison is added if Beijing is still Qing-controlled. Existing forces, treasury, AP and dice sequence are preserved. A finished campaign remains finished.
-
-## Rules to confirm with the group
-
-The detailed opening starts in 1853 and ends in 1864, giving **12 annual rounds, or 24 faction turns**. The proposal's overview also mentions “14 turns”; the group still needs to settle that discrepancy.
-
-This version keeps the proposal's starting treasuries, original army strengths, action costs, income cap and annual events. The northern route and Beijing defence include the group's requested additions. The following clarifications are also explained under **Sources & modelling choices**:
-
-- **Starting control:** Taiping holds Tianjing and Anqing. Qing holds Beijing, Changsha, Jiangnan Camp and Shanghai. All other cities begin neutral. This is a game setup, not a complete reconstruction of territorial control in 1853.
-- **City defence:** both capitals start with 4 defence, Shanghai with 2 and other cities with 0. Fortifying adds 2, up to a maximum of 8.
-- **Northern towns:** the route now runs Kaifeng 开封 → Huaiqing 怀庆 → Linqing 临清 → Cangzhou 沧州 → Tianjin 天津 → Beijing 北京. Each link requires a separate movement action; passing through a neutral town does not claim it. These are simplified game connections, not a full reconstruction of the historical expedition.
-- **Beijing garrison:** Qing starts with a separate 2-strength force at Beijing, in addition to the capital's 4 city defence. Starting total strength is Taiping 10 and Qing 14. All three Qing armies share the same 3 AP per turn.
-- **Northern supply:** the 1854 loss of 2 strength applies to each Taiping army beyond Kaifeng on the northern route, including the three added towns.
-- **Retreat:** surviving defenders automatically retreat to the nearest reachable friendly city through non-hostile territory, without an AP or treasury cost. If no route exists, the army is routed.
-- **Routed armies:** a force with zero strength regroups at its friendly capital and must recruit before acting again.
-- **Combined defence:** defending armies in the same city combine their strength. Defender losses affect the strongest army first, followed by city defence.
-- **Event timing:** one-time events occur when the year begins. Combat bonuses apply only during the named year.
-- **Income:** 1853 uses the starting treasuries without an extra collection. From 1854 onward, the sequence is historical event → optional random event → income for both sides.
-- **Time limit:** if neither capital has fallen after Qing's 1864 turn, the game ends in a stalemate.
-- **Random events:** off by default and enabled before starting a new campaign. They are hypothetical game conditions, not claims about what happened in a particular year.
-
-Army names represent associated forces, not the named leader's literal movements or continued personal command. The model cannot fully represent religion, ethnic violence, civilian experience, social mobilisation or the human costs of war. The debrief includes questions about these omissions.
-
-**Classroom balance still needs testing.** An early ending is possible: if the Taiping leave Tianjing to advance north in 1853 without a garrison, Qing may capture the capital that year. A game may therefore finish before later events occur. The group can keep short games and use the separate chronology afterwards, or adjust capital defence, starting garrisons and supply rules after playtesting. This version retains the proposal's immediate victory for capturing the opposing capital.
-
-## Materials and historical sources
-
-- The two original JPG maps remain in the project root. Copies used by the editable webpage are in dist/assets/.
-- The seven original MP3 files remain in the project root. Identical copies with simple filenames are in dist/assets/audio/; the build embeds these into both complete HTML files. No synthesized audio is used.
-- references/group-proposal-snapshot.txt is a local snapshot of the discussion document read on 2026-10-19, retained for comparison with the implementation. The Google Doc was not edited. The references folder is excluded from Git.
-- Event narratives follow the group's working research and should not be treated as a fully verified final teaching script.
-- The game links to an [1864 diplomatic source from the Office of the Historian](https://history.state.gov/historicaldocuments/frus1864p3/d433) and [National Army Museum material about the Second China War](https://www.nam.ac.uk/explore/second-china-war). The diplomatic correspondence expresses contemporary interests and should be read critically.
-- The original maps' publication, author and page details were not supplied. The group should complete those citations before presenting.
-
-## Project structure
-
-    tP/
-      index.html             Game homepage for GitHub Pages
-      .nojekyll              Serve the static files directly
-      Taiping-Classroom.html Single file for offline classroom use
-      dist/
-        index.html           Entry point for the editable version
-        style.css            Styles and responsive layout
-        data.js              Cities, routes, armies and event text
-        engine.js            Turns, resources, combat and save validation
-        sound.js             MP3 playback, mute control and event cues
-        app.js               Interface interactions
-        assets/              Copies of the two supplied maps
-          audio/             Seven supplied MP3 clips
-      references/            Local proposal snapshot; excluded from Git
-      tests/                 Game-rule and audio checks
-      preview.mjs            Optional local preview server
-      build-standalone.mjs   Generate the offline file and Pages homepage
-      README.md              English documentation, shown by default
-      README.zh-CN.md        Chinese documentation
-
-Check the game rules, audio playback and embedded assets:
-
-    node --test tests/engine.test.cjs tests/sound.test.cjs
-
-After editing the source files in dist/, regenerate both the offline version and the GitHub Pages homepage:
+After changing files in **dist/**, rebuild both complete HTML files:
 
     node build-standalone.mjs
 
-All project files are kept within the project directory.
+Run the rule, simulation, audio and embedded-asset checks:
+
+    node --test tests/engine.test.cjs tests/sound.test.cjs
+
+The tests include 400 simulated campaigns covering legal moves, city ownership, turn limits, saves and game endings. These are correctness checks, not a prediction of balanced human win rates.
+
+| File | Purpose |
+| --- | --- |
+| dist/index.html, dist/style.css | Layout and appearance |
+| dist/data.js | Cities, connections, starting armies and history text |
+| dist/engine.js | Actions, battles, turns and saves |
+| dist/app.js | Controls, map rendering, dialogs and results |
+| dist/sound.js | Supplied-audio playback |
+| dist/assets/ | Maps, audio and artwork |
+| build-standalone.mjs | Embeds all assets into both complete HTML files |
+| tests/ | Automated checks |
+| qa/ | Local verification artifacts; excluded from Git |
+
+GitHub Pages serves the root **index.html**. Push the rebuilt file with the source changes; the published page updates after deployment finishes. Look for **CLASSROOM v3** and **Two actions per team each year** in the header.
+
+## Materials and historical context
+
+- Original maps and audio remain in the project root. Web copies are under **dist/assets/**. The four PNG pictures supplied by the group are under **dist/assets/images/**.
+- **references/group-proposal-snapshot.txt** preserves the earlier working proposal locally; the references folder is excluded from Git. Classroom v3 deliberately simplifies that proposal.
+- Historical text follows the group's working research. The game also links to an [1864 diplomatic report](https://history.state.gov/historicaldocuments/frus1864p3/d433) and [National Army Museum material on the Second China War](https://www.nam.ac.uk/explore/second-china-war).
+- Army names represent associated forces, not the named leaders' literal movements or continued personal command. The rules and artwork are classroom representations; they do not reproduce the full historical experience.
+- The original map publication details and the group's complete research bibliography still need to accompany the presentation.

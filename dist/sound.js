@@ -15,7 +15,12 @@
   function sequenceFor(event, details) {
     details = details || {};
     if (event === "preview") return [{ clip: "move", seconds: 1.2 }];
-    if (event === "move") return [{ clip: "move", seconds: 2.5 }];
+    if (event === "move") {
+      const sequence = [{ clip: "move", seconds: 2.5 }];
+      if (details.result) sequence.push({ clip: ending(details.result) });
+      else if (details.captured) sequence.push({ clip: "capture" });
+      return sequence;
+    }
     if (event === "claim") return [{ clip: "capture" }];
     if (event === "battle") {
       const sequence = [{ clip: "battle", seconds: 3 }];

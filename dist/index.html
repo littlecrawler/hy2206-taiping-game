@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3f0e7">
   <meta name="description" content="An offline classroom strategy game about the Taiping Rebellion, based on the HY2206 group's maps and proposal.">
-  <title>The Taiping Rebellion — HY2206 Campaign Table</title>
+  <title>The Taiping Rebellion — Classroom v3</title>
   <link rel="stylesheet" href="style.css">
   <script defer src="data.js"></script>
   <script defer src="engine.js"></script>
@@ -36,12 +36,12 @@
     <header class="masthead">
       <div class="brand">
         <div class="seal" aria-hidden="true"><span>太平</span><span>天国</span></div>
-        <div><p class="eyebrow">HY2206 <span> / </span> THE CAMPAIGN TABLE</p><h1>The Taiping Rebellion</h1><p class="brand-sub">1853–1864 · Two sides. Three fronts. An uncertain future.</p></div>
+        <div><p class="eyebrow">HY2206 <span> / </span> CLASSROOM v3</p><h1>The Taiping Rebellion</h1><p class="brand-sub">12 years · Two actions per team each year · Most cities wins</p></div>
       </div>
       <nav class="main-nav" aria-label="Classroom tools">
-        <button class="quiet-button" data-open="rules"><svg class="icon"><use href="#icon-book"/></svg>How to play</button>
+        <button class="quiet-button" data-open="rules"><svg class="icon"><use href="#icon-book"/></svg>Quick rules</button>
         <button class="quiet-button" data-open="atlas"><svg class="icon"><use href="#icon-map"/></svg>Historical atlas</button>
-        <button class="quiet-button" data-open="debrief">Debrief</button>
+        <button class="quiet-button" data-open="debrief">Results</button>
         <button class="quiet-button" id="sound-toggle" aria-label="Sound effects" aria-pressed="false" title="Enable sound effects"><svg class="icon"><use href="#icon-muted"/></svg><span>Sound off</span></button>
         <button class="icon-button" id="fullscreen" aria-label="Toggle fullscreen" title="Fullscreen for projection"><svg class="icon"><use href="#icon-expand"/></svg></button>
         <button class="icon-button" data-open="settings" aria-label="Campaign settings and save tools" title="Campaign settings and save tools"><svg class="icon"><use href="#icon-settings"/></svg></button>
@@ -52,16 +52,16 @@
       <div class="chronology"><div class="chronology-heading"><span class="eyebrow">THE ROAD TO 1864</span><button class="text-button" data-open="timeline">Explore the chronology <span aria-hidden="true">↗</span></button></div><div id="year-track" class="year-track"></div></div>
       <div id="turn-status" class="turn-status"></div>
     </section>
-    <div class="instruction-line"><span class="instruction-number">01</span> Select your army <span class="instruction-divider">/</span><span class="instruction-number">02</span> Choose a connected city <span class="instruction-divider">/</span><span class="instruction-number">03</span> Spend up to 3 action points <span class="offline-note"><i></i> Ready for offline play</span></div>
+    <div class="instruction-line"><span class="instruction-number">01</span> Choose an army <span class="instruction-divider">/</span><span class="instruction-number">02</span> Use 2 actions: move, attack or reinforce <span class="instruction-divider">/</span><span class="instruction-number">03</span> Next team <span class="offline-note"><i></i> v3 · 2 actions each year</span></div>
     <main class="campaign-layout">
       <aside class="forces-column" aria-label="Factions and armies">
         <div class="section-heading"><h2>The two sides</h2><span>OPEN INFORMATION</span></div>
         <div id="forces"></div>
-        <div class="objective-card"><span class="eyebrow">THE OBJECTIVE</span><h3>Take the opposing capital.</h3><p>Taiping advances on <b>Beijing 北京</b>.<br>Qing advances on <b>Tianjing 天京</b>.</p><p class="small muted">Neither capital taken by the end of 1864? The game ends in a stalemate.</p></div>
+        <div class="objective-card"><span class="eyebrow">HOW TO WIN</span><h3>Most cities in 1864.</h3><p>Each city = <b>1 point</b>. Equal scores = a draw.</p><p class="small muted"><b>Northern bonus:</b> Taiping captures Beijing 北京 → immediate victory.<br>Qing captures Tianjing 天京 → one city; keep playing.</p></div>
         <button class="undo-button" id="undo" disabled><svg class="icon"><use href="#icon-undo"/></svg>Undo last step</button>
       </aside>
       <section class="map-panel" aria-labelledby="map-title">
-        <div class="map-heading"><div><p class="eyebrow">THE STRATEGIC THEATRE</p><h2 id="map-title">Choose your front.</h2></div><span class="map-edition">ATLAS No. 01<br><b>CHINA · 1853</b></span></div>
+        <div class="map-heading"><div><p class="eyebrow">LIVE CITY CONTROL</p><h2 id="map-title">Choose your next city.</h2></div><span class="map-edition">CLASSROOM v3<br><b>1853–1864</b></span></div>
         <div class="route-tabs" role="group" aria-label="Highlight a strategic route">
           <button data-route="all" class="active">All routes</button><button data-route="north"><i class="route-dot north"></i>North</button><button data-route="west"><i class="route-dot west"></i>West</button><button data-route="east"><i class="route-dot east"></i>East</button>
         </div>
@@ -70,19 +70,20 @@
           <div class="compass" aria-hidden="true"><span>N</span><svg viewBox="0 0 30 45"><path d="M15 3 25 37 15 30 5 37Z" fill="currentColor"/><path d="M15 3v27L5 37Z" fill="#f3f0e7"/></svg></div>
           <div class="map-controls"><button id="zoom-out" aria-label="Zoom out on map">−</button><button id="zoom-fit" aria-label="Fit strategic theatre">Fit</button><button id="zoom-in" aria-label="Zoom in on selected city">+</button></div>
         </div>
-        <div class="map-legend"><span><i class="owner-dot taiping"></i>Taiping</span><span><i class="owner-dot qing"></i>Qing</span><span><i class="owner-dot neutral"></i>Neutral</span><span>☆ Capital</span><span class="strength-key">6 <span>Army strength</span></span></div>
-        <p class="map-caption">Historical atlas · early phase (1851–1856). Coloured nodes show <b>game control</b>; printed shading shows historical territory. Connections are simplified.</p>
+        <div class="map-legend"><span><i class="owner-dot taiping"></i>Red = Taiping</span><span><i class="owner-dot qing"></i>Blue = Qing</span><span><i class="owner-dot neutral"></i>Grey = Neutral</span><span>★ Capital</span></div>
+        <p id="capture-status" class="capture-status" role="status" aria-live="polite"></p>
+        <p class="map-caption">The faded original map is historical reference. The large coloured circles and labels show current game control.</p>
       </section>
       <aside class="operations-column" aria-label="Events and actions">
-        <section class="event-card" id="event-card"></section>
         <section class="orders-card">
           <div class="section-heading"><h2>Your orders</h2><span id="ap-label"></span></div>
           <div id="selection"></div>
+          <div id="destinations"></div>
           <div id="actions" class="action-list"></div>
           <div id="action-hint" class="action-hint" aria-live="polite"></div>
           <button class="primary-button end-turn" id="end-turn"></button>
         </section>
-        <button class="discussion-timer" id="timer"><svg class="icon"><use href="#icon-clock"/></svg><span id="timer-label">Start a 60-second discussion</span><span class="timer-status" id="timer-status">60s</span></button>
+        <section class="event-card" id="event-card"></section>
       </aside>
     </main>
     <section class="journal" aria-label="Recent campaign activity">
