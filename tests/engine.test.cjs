@@ -4,7 +4,9 @@ const E = require('../dist/engine.js');
 const D = require('../dist/data.js');
 const fresh = () => E.createGame({seed:19});
 const act = (s,a,id,target) => { const r=E.applyAction(s,a,id,target); assert.equal(r.ok,true,r.error); return r; };
-const nextYear = s => E.endTurn(E.endTurn(s).state).state;
+// Fixture advancement is separate from the real action/turn regression tests.
+const finishFixtureTurn = s => E.endTurn({...E.copy(s),ap:0}).state;
+const nextYear = s => finishFixtureTurn(finishFixtureTurn(s));
 function atYear(year) { let s=fresh(); while(s.year<year) s=nextYear(s); return s; }
 
 test('opening has a small Qing advantage, equal cities and two actions',()=>{
@@ -26,7 +28,26 @@ test('two actions can be combined and every team receives a fresh pool',()=>{
  let s=act(fresh(),'move','hong','suzhou').state; s=act(s,'move','hong','shanghai').state;
  assert.equal(s.ap,0); assert.equal(E.check(s,'move','hong','suzhou').ok,false);
  s=E.endTurn(s).state; assert.equal(s.turn,'qing'); assert.equal(s.year,1853); assert.equal(s.ap,2);
+ s=act(s,'move','zeng','wuchang').state; s=act(s,'move','zeng','jiujiang').state;
  s=E.endTurn(s).state; assert.equal(s.turn,'taiping'); assert.equal(s.year,1854); assert.equal(s.ap,2);
+});
+
+test('neither team can hand over early or skip the next team with a double click',()=>{
+ let s=fresh();
+ for(const [side,id,targets] of [['taiping','hong',['suzhou','shanghai']],['qing','zeng',['wuchang','jiujiang']]]){
+  assert.equal(s.turn,side);
+  for(const target of targets){
+   const before=JSON.stringify(s);
+   assert.equal(E.endTurn(s).ok,false); assert.equal(JSON.stringify(s),before);
+   const otherId=side==='taiping'?'zeng':'hong';
+   assert.equal(E.applyAction(s,'recruit',otherId,E.armyById(s,otherId).city).ok,false);
+   s=act(s,'move',id,target).state; assert.equal(s.turn,side);
+  }
+  assert.equal(s.ap,0); s=E.endTurn(s).state;
+  const before=JSON.stringify(s);
+  assert.equal(E.endTurn(s).ok,false); assert.equal(JSON.stringify(s),before);
+ }
+ assert.equal(s.year,1854); assert.equal(s.turn,'taiping'); assert.equal(s.ap,2);
 });
 test('invalid commands are rejected without changing the game',()=>{
  const s=fresh(),before=JSON.stringify(s);
@@ -34,7 +55,7 @@ test('invalid commands are rejected without changing the game',()=>{
  assert.equal(JSON.stringify(s),before);
 });
 test('empty enemy cities are captured without phantom defenders or extra claim actions',()=>{
- let s=E.endTurn(fresh()).state; E.armyById(s,'hong').city='hefei';
+ let s=finishFixtureTurn(fresh()); E.armyById(s,'hong').city='hefei';
  assert.equal(E.actionFor(s,'imperial','tianjing'),'move');
  const r=act(s,'move','imperial','tianjing'); assert.equal(r.captured,true); assert.equal(r.battle,null);
  assert.equal(r.state.cities.tianjing.owner,'qing'); assert.equal(E.armyById(r.state,'imperial').city,'tianjing'); assert.equal(r.state.result,null);
@@ -47,7 +68,7 @@ test('a successful attack updates ownership and army position together',()=>{
  assert.equal(E.parseSave(JSON.stringify(r.state)).ok,true);
 });
 test('Qing capture of Tianjing is blue ownership and does not end the game',()=>{
- const s=E.endTurn(fresh()).state; E.armyById(s,'imperial').strength=10;
+ const s=finishFixtureTurn(fresh()); E.armyById(s,'imperial').strength=10;
  const r=act(s,'attack','imperial','tianjing'); assert.equal(r.state.cities.tianjing.owner,'qing');
  assert.equal(D.factions[r.state.cities.tianjing.owner].color,'#30546a'); assert.equal(E.armyById(r.state,'imperial').city,'tianjing');
  assert.equal(r.state.result,null); assert.equal(E.parseSave(JSON.stringify(r.state)).ok,true);
@@ -68,12 +89,19 @@ test('reinforcement spends one token and one action, with a cap of ten',()=>{
  s=act(s,'recruit','shi','anqing').state; assert.equal(s.reserves.taiping,0); s=nextYear(s);
  assert.equal(E.check(s,'recruit','shi','anqing').ok,false); assert.equal(s.reserves.taiping,0);
 });
-test('zero-strength armies can be reinforced, and exhausted teams can still end their turn',()=>{
- const s=fresh(); E.armyById(s,'hong').strength=0;
+test('passing requires the whole team to have no legal action and still consumes both actions',()=>{
+ let s=fresh(); E.armyById(s,'hong').strength=0;
  assert.equal(E.check(s,'move','hong','suzhou').ok,false);
  assert.equal(E.armyById(act(s,'recruit','hong','tianjing').state,'hong').strength,2);
- s.reserves.taiping=0; E.armyById(s,'shi').strength=0;
- assert.equal(E.endTurn(s).ok,true);
+ assert.equal(E.passAction(s).ok,false);
+ E.armyById(s,'shi').strength=0;
+ assert.equal(E.hasLegalAction(s),true); assert.equal(E.passAction(s).ok,false);
+ s.reserves.taiping=0;
+ assert.equal(E.hasLegalAction(s),false); assert.equal(E.endTurn(s).ok,false);
+ const before=JSON.stringify(s); s=E.passAction(s).state;
+ assert.notEqual(JSON.stringify(s),before); assert.equal(s.turn,'taiping'); assert.equal(s.ap,1); assert.equal(E.endTurn(s).ok,false);
+ s=E.passAction(s).state; assert.equal(s.ap,0); assert.equal(E.passAction(s).ok,false);
+ assert.equal(E.parseSave(JSON.stringify(s)).ok,true); s=E.endTurn(s).state; assert.equal(s.turn,'qing'); assert.equal(s.ap,2);
 });
 test('1856 never locks the Taiping turn; history creates no deductions or bonuses',()=>{
  const opening=fresh(), s=atYear(1856);
@@ -82,14 +110,20 @@ test('1856 never locks the Taiping turn; history creates no deductions or bonuse
  assert.equal(E.check(s,'move','hong','suzhou').ok,true);
  for(const year of [1854,1856,1857,1860,1861,1862,1864]) assert.deepEqual(E.battlePreview(atYear(year),'hong','jiangnan'),E.battlePreview(opening,'hong','jiangnan'));
 });
-test('a complete game has twelve years and twenty-four team turns',()=>{
- let s=fresh(), turns=0; while(!s.result){ assert.equal(s.ap,2); assert.ok(E.check(s,'recruit',s.turn==='taiping'?'hong':'zeng',s.turn==='taiping'?'tianjing':'changsha').ok); s=E.endTurn(s).state; turns++; }
- assert.equal(turns,24); assert.equal(s.year,1864); assert.equal(s.result.reason,'cities'); assert.equal(s.result.winner,null);
+test('a complete game has twelve years, twenty-four team turns and forty-eight actions',()=>{
+ let s=fresh(), turns=0, actions=0;
+ while(!s.result){
+  assert.equal(s.ap,2); const side=s.turn;
+  const [id,away,back]=side==='taiping'?['hong','hefei','tianjing']:['zeng','wuchang','changsha'];
+  for(const target of [away,back]) {s=act(s,'move',id,target).state;actions++;assert.equal(s.turn,side);}
+  s=E.endTurn(s).state; turns++;
+ }
+ assert.equal(turns,24); assert.equal(actions,48); assert.equal(s.year,1864); assert.equal(s.result.reason,'cities');
 });
 test('final city count correctly awards either winner or a draw',()=>{
  for(const side of ['taiping','qing',null]){
-  let s=E.endTurn(atYear(1864)).state; if(side)s.cities.suzhou.owner=side;
-  s=E.endTurn(s).state; assert.equal(s.result.winner,side); assert.equal(E.parseSave(JSON.stringify(s)).ok,true);
+  let s=finishFixtureTurn(atYear(1864)); if(side)s.cities.suzhou.owner=side;
+  s=finishFixtureTurn(s); assert.equal(s.result.winner,side); assert.equal(E.parseSave(JSON.stringify(s)).ok,true);
  }
 });
 test('battle dice are reproducible after undo or restoring a save',()=>{
@@ -122,10 +156,10 @@ test('400 complete campaigns preserve actions, ownership, saves and termination'
      if(E.check(s,'recruit',a.id,a.city).ok) options.push(['recruit',a.id,a.city]);
      for(const target of D.neighbours[a.city]){const action=E.actionFor(s,a.id,target);if(E.check(s,action,a.id,target).ok)options.push([action,a.id,target]);}
     }
-    if(!options.length)break;
-    const before=JSON.stringify(s),ap=s.ap;
-    const r=E.applyAction(s,...options[(seed*13+actions*7+turns*3)%options.length]); assert.equal(r.ok,true); assert.equal(JSON.stringify(s),before);
-    s=r.state; actions++; assert.equal(s.ap,ap-1);
+    const before=JSON.stringify(s),ap=s.ap,side=s.turn;
+    const r=options.length?E.applyAction(s,...options[(seed*13+actions*7+turns*3)%options.length]):E.passAction(s);
+    assert.equal(r.ok,true,r.error); assert.equal(JSON.stringify(s),before);
+    s=r.state; actions++; assert.equal(s.ap,ap-1); assert.equal(s.turn,side);
     assert.ok(s.armies.every(a=>a.strength>=0&&a.strength<=10&&(a.strength===0||s.cities[a.city].owner===a.faction)));
     assert.equal(E.parseSave(JSON.stringify(s)).ok,true);
    }

@@ -6,6 +6,8 @@ A two-team strategy game for a shared classroom screen. **Classroom v3** uses si
 
 [Play online](https://littlecrawler.github.io/hy2206-taiping-game/)
 
+Share with your team: [English rules checklist](Game-Rules.txt) · [中文规则清单](Game-Rules.zh-CN.txt).
+
 ## Play offline
 
 Open **Taiping-Classroom.html** in Chrome or Edge. This single file contains the game, both historical maps, seven supplied MP3 clips, two soldier icons and two victory pictures. Copying this one file to another computer is enough; no installation or internet is required.
@@ -20,7 +22,7 @@ The root **index.html** is an identical copy for GitHub Pages. The editable vers
 4. After Qing finishes in **1864**, the team with more cities wins. Each city is one point; equal scores are a draw.
 5. **Northern bonus:** Taiping wins immediately by capturing Beijing 北京. Qing capturing Tianjing 天京 earns one city and the game continues.
 
-Each move, attack or reinforcement uses **one action**. You can use both actions with the same army, split them between armies, or end your turn early.
+Each move, attack or reinforcement uses **one action**. You can use both actions with the same army or split them between armies. **Both actions must be used before Next team becomes available.** After the first action, the same team still plays; the opposing team cannot act yet.
 
 There is no treasury, income, fortification, separate claim action or compulsory historical decision. History cards provide context and never block play.
 
@@ -40,13 +42,15 @@ Qing has a modest starting advantage in strength and tokens. All other cities st
 - **Tie:** each force loses one strength; city control does not change.
 - Multiple armies in a city combine their strength when defending. Losses are taken from the strongest army first.
 - Retreat is automatic to the nearest friendly city; its route does not cost actions. If no friendly city remains, that army has zero strength.
-- An army with zero strength can return by reinforcing at a friendly city. If it cannot act, choose another army or end the turn.
+- An army with zero strength can return by reinforcing at a friendly city. If it cannot act, choose another army. Only when the entire team has no legal move, attack or reinforcement does **Pass action** appear; each pass consumes one action. Changing teams still requires zero actions remaining.
 
 The northern route is Tianjing → Hefei → Kaifeng → Huaiqing → Linqing → Cangzhou → Tianjin → Beijing. One connection takes one action.
 
 ## Reading and operating the map
 
 **Red circles and labels = Taiping control. Blue = Qing. Grey = neutral.** Soldier portraits show the armies' current locations; the number on each portrait is its strength. A city remains yours when its army leaves.
+
+The red or blue turn banner stays visible while scrolling. It names the active team and shows actions remaining; the opposing team waits until both actions are used and **Next team** is clicked.
 
 Click an army in the left roster, or click a friendly city containing your troops. Use **Connected destinations** on the right to choose where that army should go. The available move/attack button follows the destination. Capturing a city updates its colour, the army position, the score and the capture message together.
 
