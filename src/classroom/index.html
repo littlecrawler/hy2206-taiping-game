@@ -7,6 +7,7 @@
   <meta name="description" content="An offline classroom strategy game about the Taiping Rebellion, based on the HY2206 group's maps and proposal.">
   <title>The Taiping Rebellion — Classroom v3</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../editions.css">
   <script defer src="data.js"></script>
   <script defer src="engine.js"></script>
   <script defer src="sound.js"></script>
@@ -33,6 +34,13 @@
     </defs>
   </svg>
   <div class="app-shell">
+    <div class="edition-bar">
+      <nav class="edition-switch" aria-label="Game version">
+        <a href="../../index.html" aria-current="page">Classroom <span>New · 2 actions</span></a>
+        <a href="../../classic.html">Original <span>Full rules · 3 AP</span></a>
+      </nav>
+      <p>Save your game before switching versions.</p>
+    </div>
     <header class="masthead">
       <div class="brand">
         <div class="seal" aria-hidden="true"><span>太平</span><span>天国</span></div>

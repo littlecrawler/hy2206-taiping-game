@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const E = require('../dist/engine.js');
-const D = require('../dist/data.js');
+const E = require('../src/classroom/engine.js');
+const D = require('../src/classroom/data.js');
 const fresh = () => E.createGame({seed:19});
 const act = (s,a,id,target) => { const r=E.applyAction(s,a,id,target); assert.equal(r.ok,true,r.error); return r; };
 // Fixture advancement is separate from the real action/turn regression tests.

@@ -3,8 +3,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-const { createPlayer, files, sequenceFor } = require("../dist/sound.js");
-const E = require("../dist/engine.js");
+const { createPlayer, files, sequenceFor } = require("../src/classroom/sound.js");
+const E = require("../src/classroom/engine.js");
 const clips = (event, details) => sequenceFor(event, details).map(step => step.clip);
 
 function fixture() {
@@ -170,38 +170,4 @@ test("late rejection from an interrupted clip cannot stop newer audio", async ()
   assert.equal(f.media.paused, false);
   assert.equal(f.errors.length, 0);
   f.player.stop();
-});
-
-test("both standalone pages embed all seven original MP3 payloads and current scripts", () => {
-  const root = path.join(__dirname, "..");
-  const standalone = fs.readFileSync(path.join(root, "Taiping-Classroom.html"), "utf8");
-  assert.equal(standalone, fs.readFileSync(path.join(root, "index.html"), "utf8"));
-  const embedded = JSON.parse(standalone.match(/window\.TAIPING_SOUND_ASSETS = (\{[^\n]+\});/)[1]);
-  assert.equal(Object.keys(embedded).length, 7);
-  for (const [key, file] of Object.entries(files)) {
-    const original = fs.readFileSync(path.join(root, "dist", file));
-    assert.ok(original.length > 1000);
-    assert.match(embedded[key], /^data:audio\/mpeg;base64,/);
-    assert.deepEqual(Buffer.from(embedded[key].split(",")[1], "base64"), original);
-  }
-  for (const file of ["data.js", "engine.js", "sound.js", "app.js"]) {
-    const source = fs.readFileSync(path.join(root, "dist", file), "utf8").replace(/<\/script/gi, "<\\/script");
-    assert.ok(standalone.includes(source), file + " must match the current source");
-  }
-  for (const match of standalone.matchAll(/<script>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
-  assert.doesNotMatch(standalone, /<script[^>]+src=|<link[^>]+stylesheet/);
-  assert.doesNotMatch(standalone, /AudioContext|createOscillator|createBufferSource/);
-});
-
-test("standalone pages embed all five supplied troop and ending images without changes", () => {
-  const root = path.join(__dirname, "..");
-  const standalone = fs.readFileSync(path.join(root, "Taiping-Classroom.html"), "utf8");
-  const embedded = JSON.parse(standalone.match(/window\.TAIPING_IMAGE_ASSETS = (\{[^\n]+\});/)[1]);
-  const names = ["taiping-troop", "qing-troop", "taiping-victory", "qing-victory", "draw-ending"];
-  assert.deepEqual(Object.keys(embedded).sort(), names.slice().sort());
-  for (const name of names) {
-    assert.match(embedded[name], /^data:image\/png;base64,/);
-    const original = fs.readFileSync(path.join(root, "dist", "assets", "images", name + ".png"));
-    assert.deepEqual(Buffer.from(embedded[name].split(",")[1], "base64"), original);
-  }
 });

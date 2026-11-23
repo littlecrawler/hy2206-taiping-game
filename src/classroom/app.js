@@ -1,8 +1,8 @@
 (function () {
   "use strict";
   const D = window.TAIPING_DATA, E = window.TaipingEngine, S = window.TaipingSound;
-  const mapAssets = window.TAIPING_MAP_ASSETS || { early: "assets/early-map.jpg", late: "assets/late-map.jpg" };
-  const imageAsset = name => window.TAIPING_IMAGE_ASSETS?.[name] || 'assets/images/' + name + '.png';
+  const mapAssets = window.TAIPING_MAP_ASSETS || { early: "../assets/early-map.jpg", late: "../assets/late-map.jpg" };
+  const imageAsset = name => window.TAIPING_IMAGE_ASSETS?.[name] || '../assets/images/' + name + '.png';
   const $ = id => document.getElementById(id);
   const esc = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const icon = name => '<svg class="icon" aria-hidden="true"><use href="#icon-' + name + '"/></svg>';
