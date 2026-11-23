@@ -1,7 +1,7 @@
 (function (root) {
   "use strict";
   const data = {
-    version: 2,
+    version: 4,
     startYear: 1853,
     endYear: 1864,
     factions: {
@@ -15,7 +15,7 @@
       { id: "linqing", en: "Linqing", zh: "临清", x: 430, y: 266, lx: 345, ly: 269, owner: null, fort: 0 },
       { id: "huaiqing", en: "Huaiqing", zh: "怀庆", x: 350, y: 330, lx: 295, ly: 305, owner: null, fort: 0 },
       { id: "kaifeng", en: "Kaifeng", zh: "开封", x: 406, y: 350, lx: 318, ly: 344, owner: null, fort: 0 },
-      { id: "hefei", en: "Hefei", zh: "合肥", x: 526, y: 407, lx: 469, ly: 392, owner: null, fort: 0 },
+      { id: "hefei", en: "Hefei", zh: "合肥", x: 526, y: 407, lx: 469, ly: 392, owner: "taiping", fort: 0 },
       { id: "tianjing", en: "Tianjing", zh: "天京", alias: "Nanjing 南京", x: 584, y: 433, lx: 549, ly: 403, owner: "taiping", fort: 4, capital: "taiping" },
       { id: "jiangnan", en: "Jiangnan Camp", zh: "江南大营", x: 575, y: 455, lx: 477, ly: 455, owner: "qing", fort: 0 },
       { id: "anqing", en: "Anqing", zh: "安庆", x: 520, y: 499, lx: 455, ly: 496, owner: "taiping", fort: 0 },
@@ -23,7 +23,7 @@
       { id: "wuchang", en: "Wuchang", zh: "武昌", x: 413, y: 521, lx: 333, ly: 518, owner: null, fort: 0 },
       { id: "changsha", en: "Changsha", zh: "长沙", x: 351, y: 618, lx: 330, ly: 652, owner: "qing", fort: 0 },
       { id: "suzhou", en: "Suzhou", zh: "苏州", x: 652, y: 462, lx: 624, ly: 433, owner: null, fort: 0 },
-      { id: "shanghai", en: "Shanghai", zh: "上海", x: 690, y: 475, lx: 698, ly: 491, owner: "qing", fort: 2 },
+      { id: "shanghai", en: "Shanghai", zh: "上海", x: 690, y: 475, lx: 698, ly: 491, owner: null, fort: 0 },
       { id: "hangzhou", en: "Hangzhou", zh: "杭州", x: 633, y: 531, lx: 569, ly: 548, owner: null, fort: 0 },
       { id: "ningbo", en: "Ningbo", zh: "宁波", x: 686, y: 553, lx: 674, ly: 582, owner: null, fort: 0 }
     ],
@@ -59,7 +59,7 @@
       1861: { title: "The struggle for Anqing", tag: "THE YANGTZE LIFELINE", text: "The historical fall of Anqing strengthens the Qing position on the river west of Tianjing.", effect: "Qing receives +2 combat power when attacking Anqing during 1861 only." },
       1862: { title: "Foreign support around Shanghai", tag: "FOREIGN INTERVENTION", text: "Qing-aligned regional and Western-trained forces resist the Taiping in the lower Yangtze and around Shanghai.", effect: "Qing receives +2 combat power when defending Shanghai or Suzhou during 1862 only." },
       1863: { title: "Tianjing becomes isolated", tag: "ATTRITION & ENCIRCLEMENT", text: "Qing and Qing-aligned forces retake Taiping territory. The historical Taiping capital becomes increasingly isolated.", effect: "No extra modifier. Examine your own capital's connections and defences." },
-      1864: { title: "The final siege", tag: "THE LAST CAMPAIGN YEAR", text: "In the historical campaign, Qing forces capture Tianjing in 1864 and the Taiping state collapses. Your game outcome may differ.", effect: "Qing receives +2 combat power when attacking Tianjing this year. The game ends after Qing's turn if neither capital falls." }
+      1864: { title: "The final siege", tag: "THE LAST CAMPAIGN YEAR", text: "In the historical campaign, Qing forces capture Tianjing in 1864 and the Taiping state collapses. Your game outcome may differ.", effect: "Qing receives +2 combat power when attacking Tianjing this year. Capturing Tianjing does not end the game. After Qing's turn, the side controlling more cities wins; equal city counts are a draw." }
     },
     sources: [
       { id: "nanking-report", title: "A diplomatic report of the fall of Nanking (1864)", url: "https://history.state.gov/historicaldocuments/frus1864p3/d433", note: "Primary source, Office of the Historian. Read the Qing and American diplomatic language critically: a contemporary report is also an interested account." },

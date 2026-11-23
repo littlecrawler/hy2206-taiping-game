@@ -5,6 +5,12 @@
   const other = function (side) { return side === "taiping" ? "qing" : "taiping"; };
   const armyById = function (state, id) { return state.armies.find(function (army) { return army.id === id; }); };
   const troopsAt = function (state, city, side) { return state.armies.filter(function (army) { return army.city === city && army.faction === side && army.strength > 0; }); };
+  const cityCount = function (state, side) { return D.cities.filter(function (city) { return state.cities[city.id].owner === side; }).length; };
+  const scores = function (state) { return { taiping: cityCount(state, "taiping"), qing: cityCount(state, "qing") }; };
+  function cityResult(state) {
+    const points = scores(state);
+    return { winner: points.taiping === points.qing ? null : points.taiping > points.qing ? "taiping" : "qing", reason: "cities", scores: points };
+  }
   function log(state, message) {
     state.log.push({ year: state.year, side: state.turn, message: message });
     state.log = state.log.slice(-160);
@@ -158,7 +164,7 @@
               notes.push(unit.name + ": routed; recruitment is required before acting.");
             }
           });
-          if (D.cityById[target].capital === other(side)) state.result = { winner: side, reason: "capital", city: target };
+          if (side === "taiping" && target === "beijing") state.result = { winner: "taiping", reason: "capital", city: "beijing" };
         } else {
           outcome = "no-capture";
           notes.push("The attacker's last strength is lost. The city is not captured.");
@@ -231,8 +237,8 @@
       return { ok: true, state: state, newYear: false };
     }
     if (state.year === D.endYear) {
-      state.result = { winner: null, reason: "time" };
-      log(state, "The 1864 Qing turn ends. Neither capital has fallen: the classroom game is a stalemate.");
+      state.result = cityResult(state);
+      log(state, "The 1864 Qing turn ends. City score: Taiping " + state.result.scores.taiping + "; Qing " + state.result.scores.qing + ". " + (state.result.winner ? D.factions[state.result.winner].short + " wins on cities." : "Equal city counts: a draw."));
       return { ok: true, state: state, newYear: false };
     }
     state.year++; state.turn = "taiping"; state.ap = 3;
@@ -262,16 +268,17 @@
   function parseSave(text) {
     let state;
     try { state = JSON.parse(text); } catch (_) { return { ok: false, error: "This is not valid save text." }; }
-    const migrated = state && state.version === 1;
-    if (migrated) {
+    const previousVersion = state && state.version;
+    const migrated = previousVersion === 1 || previousVersion === 2;
+    if (previousVersion === 1) {
       const addedCities = ["huaiqing", "linqing", "cangzhou"];
       if (!state.cities || addedCities.some(function (id) { return Object.prototype.hasOwnProperty.call(state.cities, id); }) || !Array.isArray(state.armies) || state.armies.length !== 4 || !state.cities.beijing) return { ok: false, error: "This older save has invalid cities or armies." };
-      state.version = D.version;
       addedCities.forEach(function (id) { state.cities[id] = { owner: null, fort: 0 }; });
       const guard = copy(D.armies.find(function (unit) { return unit.id === "beijing-guard"; }));
       if (state.cities.beijing.owner !== "qing") guard.strength = 0;
       state.armies.push(guard);
     }
+    if (migrated) state.version = D.version;
     const integer = function (n, max) { return Number.isSafeInteger(n) && n >= 0 && n <= max; };
     if (!state || state.version !== D.version || !Number.isSafeInteger(state.year) || !integer(state.year - D.startYear, D.endYear - D.startYear) || !["taiping", "qing"].includes(state.turn) || !integer(state.ap, 3)) return { ok: false, error: "The save has an invalid version, year or turn." };
     if (!state.treasury || !["taiping", "qing"].every(function (side) { return integer(state.treasury[side], 100000); })) return { ok: false, error: "Invalid treasury values." };
@@ -282,13 +289,25 @@
     })) return { ok: false, error: "Invalid army values." };
     if (!integer(state.seed, 4294967295) || typeof state.randomEvents !== "boolean" || ![null, "tianjing"].includes(state.pending)) return { ok: false, error: "Invalid event state." };
     if (state.pending && (state.year !== 1856 || state.turn !== "taiping" || state.result)) return { ok: false, error: "The incident does not match this campaign year." };
-    if (state.result !== null && (!state.result || ![null, "taiping", "qing"].includes(state.result.winner) || !["capital", "time"].includes(state.result.reason))) return { ok: false, error: "Invalid campaign outcome." };
+    if (state.result !== null && (!state.result || ![null, "taiping", "qing"].includes(state.result.winner) || !["capital", "cities", "time"].includes(state.result.reason))) return { ok: false, error: "Invalid campaign outcome." };
     if (state.result && state.result.reason === "capital") {
       if (!["taiping", "qing"].includes(state.result.winner) || state.result.city !== D.factions[other(state.result.winner)].capital || state.cities[state.result.city].owner !== state.result.winner) return { ok: false, error: "The captured capital does not match this outcome." };
+      if (state.result.winner === "qing") {
+        if (!migrated) return { ok: false, error: "Capturing Tianjing does not end the game. Continue to the 1864 city count." };
+        state.result = null;
+      }
     }
-    if (state.result && state.result.reason === "time" && (state.result.winner !== null || state.year !== D.endYear || state.turn !== "qing")) return { ok: false, error: "A time-limit outcome must follow Qing's 1864 turn." };
+    if (state.result && state.result.reason === "time") {
+      if (!migrated || state.result.winner !== null || state.year !== D.endYear || state.turn !== "qing") return { ok: false, error: "A time-limit outcome must follow Qing's 1864 turn." };
+      state.result = cityResult(state);
+    }
+    if (state.result && state.result.reason === "cities") {
+      const expected = cityResult(state), saved = state.result.scores;
+      if (state.year !== D.endYear || state.turn !== "qing" || state.result.winner !== expected.winner || !saved || saved.taiping !== expected.scores.taiping || saved.qing !== expected.scores.qing) return { ok: false, error: "The final city score does not match Qing's completed 1864 turn." };
+    }
     if (state.armies.some(function (army) { return army.strength > 0 && state.cities[army.city].owner === other(army.faction); })) return { ok: false, error: "An army cannot occupy an enemy-controlled city." };
-    if ((!state.result || state.result.reason === "time") && ["taiping", "qing"].some(function (side) { return state.cities[D.factions[side].capital].owner !== side; })) return { ok: false, error: "Capital ownership does not match an unfinished campaign or stalemate." };
+    const beijingCaptured = state.result && state.result.reason === "capital" && state.result.winner === "taiping";
+    if (state.cities.beijing.owner !== (beijingCaptured ? "taiping" : "qing") || !["taiping", "qing"].includes(state.cities.tianjing.owner)) return { ok: false, error: "Capital ownership does not match the campaign outcome." };
     const clean = createGame({ seed: state.seed, randomEvents: state.randomEvents });
     ["year", "turn", "ap", "treasury", "pending", "result"].forEach(function (key) { clean[key] = copy(state[key]); });
     D.cities.forEach(function (city) { clean.cities[city.id] = { owner: state.cities[city.id].owner, fort: state.cities[city.id].fort }; });
@@ -298,9 +317,10 @@
     });
     clean.log = Array.isArray(state.log) ? state.log.filter(function (entry) { return entry && typeof entry.message === "string" && integer(entry.year - D.startYear, D.endYear - D.startYear) && ["taiping", "qing"].includes(entry.side); }).slice(-160).map(function (entry) { return { year: entry.year, side: entry.side, message: entry.message.slice(0, 1500) }; }) : [];
     clean.randomEvent = state.randomEvent && typeof state.randomEvent.title === "string" && typeof state.randomEvent.text === "string" ? { title: state.randomEvent.title.slice(0, 120), text: state.randomEvent.text.slice(0, 500) } : null;
+    if (migrated) log(clean, "Save updated to city scoring: more cities after Qing's 1864 turn wins. Taiping captures Beijing for an immediate victory; capturing Tianjing does not end play.");
     return { ok: true, state: clean, migrated: Boolean(migrated) };
   }
-  const api = { createGame: createGame, check: check, applyAction: applyAction, endTurn: endTurn, resolveIncident: resolveIncident, battlePreview: battlePreview, income: income, strength: strength, armyById: armyById, troopsAt: troopsAt, parseSave: parseSave, copy: copy };
+  const api = { createGame: createGame, check: check, applyAction: applyAction, endTurn: endTurn, resolveIncident: resolveIncident, battlePreview: battlePreview, income: income, strength: strength, cityCount: cityCount, scores: scores, armyById: armyById, troopsAt: troopsAt, parseSave: parseSave, copy: copy };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TaipingEngine = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

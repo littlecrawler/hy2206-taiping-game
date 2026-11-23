@@ -32,6 +32,12 @@ test("opening keeps the original forces and adds a small Beijing garrison", () =
   for (const [id, city] of [["hong","tianjing"],["shi","anqing"],["zeng","changsha"],["imperial","jiangnan"]]) assert.equal(E.armyById(state, id).city, city);
   assert.equal(E.armyById(state, "beijing-guard").city, "beijing");
   assert.equal(E.armyById(state, "beijing-guard").strength, 2);
+  assert.deepEqual(E.scores(state), { taiping: 3, qing: 3 });
+  assert.equal(E.income(state, "taiping"), 5); assert.equal(E.income(state, "qing"), 5);
+  assert.equal(state.cities.hefei.owner, "taiping"); assert.equal(state.cities.shanghai.owner, null);
+  assert.equal(state.cities.shanghai.fort, 0);
+  const nextYear = E.endTurn(E.endTurn(state).state).state;
+  assert.deepEqual(nextYear.treasury, { taiping: 17, qing: 20 });
 });
 
 test("the northern advance must pass through the added towns one step at a time", () => {
@@ -40,7 +46,7 @@ test("the northern advance must pass through the added towns one step at a time"
   state = act(state, "move", "hong", "huaiqing");
   assert.equal(state.cities.huaiqing.owner, null);
   state = act(state, "claim", "hong", "huaiqing");
-  assert.equal(E.income(state, "taiping"), 5);
+  assert.equal(E.income(state, "taiping"), 6);
   state = act(state, "move", "hong", "linqing");
   assert.equal(state.ap, 0);
   state = E.endTurn(E.endTurn(state).state).state;
@@ -82,12 +88,13 @@ test("invalid moves and enemy commands do not mutate the input", () => {
   assert.equal(JSON.stringify(state), before);
 });
 test("moving into neutral territory and claiming it are separate paid actions", () => {
-  let state = act(fresh(), "move", "hong", "hefei");
-  assert.equal(state.ap, 2); assert.equal(state.treasury.taiping, 11); assert.equal(state.cities.hefei.owner, null);
-  assert.equal(E.check(state, "recruit", "hong", "hefei").ok, false);
-  state = act(state, "claim", "hong", "hefei");
-  assert.equal(state.cities.hefei.owner, "taiping"); assert.equal(state.ap, 1); assert.equal(state.treasury.taiping, 10);
-  assert.equal(E.income(state, "taiping"), 5);
+  let state = act(fresh(), "move", "hong", "suzhou");
+  assert.equal(state.ap, 2); assert.equal(state.treasury.taiping, 11); assert.equal(state.cities.suzhou.owner, null);
+  assert.equal(E.check(state, "recruit", "hong", "suzhou").ok, false);
+  assert.equal(E.cityCount(state, "taiping"), 3);
+  state = act(state, "claim", "hong", "suzhou");
+  assert.equal(state.cities.suzhou.owner, "taiping"); assert.equal(state.ap, 1); assert.equal(state.treasury.taiping, 10);
+  assert.equal(E.income(state, "taiping"), 6); assert.equal(E.cityCount(state, "taiping"), 4);
 });
 test("treasury and AP prevent unaffordable actions", () => {
   let state = fresh(); state.treasury.taiping = 0;
@@ -191,11 +198,52 @@ test("a one-strength victorious attacker cannot capture a capital", () => {
   assert.ok(result); assert.equal(result.state.result, null);
   assert.equal(result.state.cities.beijing.owner, "qing"); assert.equal(E.armyById(result.state, "hong").strength, 0);
 });
-test("capital capture ends the game immediately", () => {
+test("Taiping capturing Beijing still ends the game immediately", () => {
   const state = fresh(); E.armyById(state, "hong").city = "tianjin"; E.armyById(state, "hong").strength = 20;
   const result = E.applyAction(state, "attack", "hong", "beijing");
   assert.equal(result.state.result.winner, "taiping"); assert.equal(result.state.result.reason, "capital");
   assert.equal(E.endTurn(result.state).ok, false);
+  assert.equal(E.parseSave(JSON.stringify(result.state)).ok, true);
+});
+
+function qingRush() {
+  let state = act(fresh(), "move", "hong", "hefei");
+  state = E.endTurn(state).state;
+  state = act(state, "recruit", "imperial", "jiangnan");
+  state = act(state, "recruit", "imperial", "jiangnan");
+  return act(state, "attack", "imperial", "tianjing");
+}
+
+test("the opening Qing rush captures Tianjing but cannot end the campaign", () => {
+  const captured = qingRush();
+  assert.equal(captured.cities.tianjing.owner, "qing");
+  assert.equal(E.armyById(captured, "imperial").city, "tianjing");
+  assert.equal(captured.result, null); assert.equal(captured.ap, 0);
+  assert.deepEqual(E.scores(captured), { taiping: 2, qing: 4 });
+  assert.equal(E.income(captured, "taiping"), 2); assert.equal(E.income(captured, "qing"), 6);
+  const restored = E.parseSave(JSON.stringify(captured));
+  assert.equal(restored.ok, true);
+  const nextYear = E.endTurn(restored.state);
+  assert.equal(nextYear.ok, true); assert.equal(nextYear.state.year, 1854); assert.equal(nextYear.state.result, null);
+  assert.equal(E.check(nextYear.state, "move", "hong", "kaifeng").ok, true);
+});
+
+test("Taiping can recapture Tianjing and restore its capital income without ending play", () => {
+  let state = E.endTurn(qingRush()).state;
+  E.armyById(state, "hong").strength = 30;
+  state = act(state, "attack", "hong", "tianjing");
+  assert.equal(state.cities.tianjing.owner, "taiping"); assert.equal(state.result, null);
+  assert.deepEqual(E.scores(state), { taiping: 3, qing: 3 });
+  assert.equal(E.income(state, "taiping"), 5); assert.equal(E.income(state, "qing"), 5);
+  assert.equal(E.parseSave(JSON.stringify(state)).ok, true);
+});
+
+test("the Beijing victory remains available after Taiping loses Tianjing", () => {
+  let state = E.endTurn(qingRush()).state;
+  E.armyById(state, "hong").city = "tianjin"; E.armyById(state, "hong").strength = 20;
+  state = act(state, "attack", "hong", "beijing");
+  assert.equal(state.result.winner, "taiping"); assert.equal(state.result.reason, "capital");
+  assert.equal(E.parseSave(JSON.stringify(state)).ok, true);
 });
 test("event bonuses apply only to the correct side, city and year", () => {
   const state = fresh(); state.year = 1860;
@@ -205,6 +253,7 @@ test("event bonuses apply only to the correct side, city and year", () => {
   assert.equal(E.battlePreview(state, "imperial", "anqing").attackerBonus, 2);
   state.year = 1864; assert.equal(E.battlePreview(state, "imperial", "tianjing").attackerBonus, 2);
   state.turn = "taiping"; E.armyById(state, "hong").city = "suzhou"; state.year = 1862;
+  state.cities.shanghai.owner = "qing";
   assert.equal(E.battlePreview(state, "hong", "shanghai").defenderBonus, 2);
   state.year = 1863; assert.equal(E.battlePreview(state, "hong", "shanghai").defenderBonus, 0);
 });
@@ -223,7 +272,41 @@ test("12 complete rounds end only after Qing's 1864 turn", () => {
     if (state.pending) state = E.resolveIncident(state, "loss").state;
     state = E.endTurn(state).state; turns++;
   }
-  assert.equal(turns, 24); assert.equal(state.year, 1864); assert.equal(state.result.reason, "time"); assert.equal(state.result.winner, null);
+  assert.equal(turns, 24); assert.equal(state.year, 1864); assert.equal(state.result.reason, "cities"); assert.equal(state.result.winner, null);
+  assert.deepEqual(state.result.scores, { taiping: 3, qing: 3 });
+});
+
+test("1864 city counts decide either winner or a draw, regardless of treasury and strength", () => {
+  for (const winner of ["taiping", "qing", null]) {
+    let state = fresh(); state.year = 1864;
+    if (winner) state.cities.suzhou.owner = winner;
+    state.treasury.taiping = 9000; state.treasury.qing = 0;
+    E.armyById(state, "hong").strength = 200;
+    state = E.endTurn(state).state;
+    assert.equal(state.result, null); assert.equal(state.turn, "qing");
+    state = E.endTurn(state).state;
+    assert.equal(state.result.winner, winner); assert.equal(state.result.reason, "cities");
+    assert.deepEqual(state.result.scores, { taiping: winner === "taiping" ? 4 : 3, qing: winner === "qing" ? 4 : 3 });
+    assert.equal(E.endTurn(state).ok, false); assert.equal(E.parseSave(JSON.stringify(state)).ok, true);
+  }
+});
+
+test("Qing's final 1864 action counts before the city score is settled", () => {
+  let state = fresh(); state.year = 1864; state.turn = "qing"; state.ap = 1;
+  E.armyById(state, "beijing-guard").city = "tianjin";
+  state = act(state, "claim", "beijing-guard", "tianjin");
+  assert.equal(state.result, null);
+  const ended = E.endTurn(state).state;
+  assert.equal(ended.result.winner, "qing"); assert.deepEqual(ended.result.scores, { taiping: 3, qing: 4 });
+});
+
+test("restores reject premature scores, false score totals and obsolete Qing capital wins", () => {
+  const premature = fresh(); premature.result = { reason: "cities", winner: null, scores: { taiping: 3, qing: 3 } };
+  assert.equal(E.parseSave(JSON.stringify(premature)).ok, false);
+  premature.year = 1864; premature.turn = "qing"; premature.result.scores.taiping = 10;
+  assert.equal(E.parseSave(JSON.stringify(premature)).ok, false);
+  const captured = qingRush(); captured.result = { reason: "capital", winner: "qing", city: "tianjing" };
+  assert.equal(E.parseSave(JSON.stringify(captured)).ok, false);
 });
 test("save restore preserves dice and rejects malformed or duplicate army data", () => {
   const state = battleSetup(9, 6), parsed = E.parseSave(JSON.stringify(state));
@@ -260,7 +343,7 @@ test("original saves upgrade the map and garrison while preserving the campaign"
   const old = legacySave(act(fresh(), "move", "hong", "hefei"));
   const result = E.parseSave(JSON.stringify(old));
   assert.equal(result.ok, true); assert.equal(result.migrated, true);
-  assert.equal(result.state.version, 2); assert.equal(result.state.ap, old.ap);
+  assert.equal(result.state.version, D.version); assert.equal(result.state.ap, old.ap);
   assert.deepEqual(result.state.treasury, old.treasury); assert.equal(result.state.seed, old.seed);
   assert.equal(E.armyById(result.state, "hong").city, "hefei");
   assert.equal(E.armyById(result.state, "beijing-guard").strength, 2);
@@ -274,6 +357,25 @@ test("upgrading a finished old campaign does not respawn a hostile Beijing garri
   const result = E.parseSave(JSON.stringify(legacySave(ended)));
   assert.equal(result.ok, true); assert.equal(result.state.result.winner, "taiping");
   assert.equal(E.armyById(result.state, "beijing-guard").strength, 0);
+});
+
+test("previous-version Qing capital wins resume with positions and treasury preserved", () => {
+  const old = qingRush(); old.version = 2;
+  old.result = { reason: "capital", winner: "qing", city: "tianjing" };
+  const restored = E.parseSave(JSON.stringify(old));
+  assert.equal(restored.ok, true); assert.equal(restored.migrated, true); assert.equal(restored.state.result, null);
+  assert.deepEqual(restored.state.cities, old.cities); assert.deepEqual(restored.state.treasury, old.treasury);
+  assert.equal(restored.state.version, D.version); assert.equal(E.endTurn(restored.state).ok, true);
+});
+
+test("previous-version time-limit draws are settled using the saved city ownership", () => {
+  const old = fresh(); old.version = 2; old.year = 1864; old.turn = "qing";
+  old.cities.hefei.owner = null; old.cities.shanghai.owner = "qing";
+  old.result = { reason: "time", winner: null };
+  const restored = E.parseSave(JSON.stringify(old));
+  assert.equal(restored.ok, true); assert.equal(restored.state.result.reason, "cities");
+  assert.equal(restored.state.result.winner, "qing");
+  assert.deepEqual(restored.state.result.scores, { taiping: 2, qing: 4 });
 });
 
 test("invalid or missing forces are rejected in both save versions", () => {
