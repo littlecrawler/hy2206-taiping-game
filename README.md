@@ -9,7 +9,7 @@ A two-team browser strategy game created for our HY2206 group project. Play on a
 | Version | What to expect |
 | --- | --- |
 | [Classroom version — simplified rules](https://littlecrawler.github.io/hy2206-taiping-game/) | The version used in our presentation. Two actions per team each year, automatic city capture and limited reinforcements. Most cities in 1864 wins; Taiping can also win by capturing Beijing. |
-| [Older version — more rules](https://littlecrawler.github.io/hy2206-taiping-game/classic.html) | Three action points per team, treasury, annual income, separate city claims, recruitment, fortifications and historical event choices. Capture the opposing capital by 1864, or draw. |
+| [Older version — more rules](https://littlecrawler.github.io/hy2206-taiping-game/classic.html) | Three action points per team, treasury, annual income, separate city claims, recruitment, fortifications, historical event choices and random events (on by default). Capture the opposing capital by 1864, or draw. |
 
 Switch versions at the top of either game. Both cover **1853–1864** and include their own in-game rules. Save your game before switching; saves belong to their respective version.
 
