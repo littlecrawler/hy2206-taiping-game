@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3f0e7">
-  <meta name="description" content="An offline classroom strategy game about the Taiping Rebellion, based on the HY2206 group's maps and proposal.">
-  <title>The Taiping Rebellion — Classroom v3</title>
+  <meta name="description" content="An offline classroom strategy game about the Taiping Rebellion, created for the HY2206 group project.">
+  <title>The Taiping Rebellion — Classroom Version</title>
   <style>
 @charset "UTF-8";
 :root{--paper:#f3f0e7;--panel:#faf8f1;--ink:#262c29;--muted:#777a70;--line:#dcd9ce;--red:#a43e32;--red-soft:#f1e5dc;--blue:#30546a;--blue-soft:#e4ebed;--gold:#a18553;--serif:Georgia,"Times New Roman","Noto Serif SC",serif;--sans:"Segoe UI",Arial,"Microsoft YaHei",sans-serif}
@@ -64,15 +64,15 @@
   <div class="app-shell">
     <div class="edition-bar">
       <nav class="edition-switch" aria-label="Game version">
-        <a href="index.html" aria-current="page">Classroom <span>New · 2 actions</span></a>
-        <a href="classic.html">Original <span>Full rules · 3 AP</span></a>
+        <a href="index.html" aria-current="page">Classroom version <span>Simplified rules · 2 actions</span></a>
+        <a href="classic.html">Older version <span>More rules · 3 AP</span></a>
       </nav>
       <p>Save your game before switching versions.</p>
     </div>
     <header class="masthead">
       <div class="brand">
         <div class="seal" aria-hidden="true"><span>太平</span><span>天国</span></div>
-        <div><p class="eyebrow">HY2206 <span> / </span> CLASSROOM v3</p><h1>The Taiping Rebellion</h1><p class="brand-sub">12 years · Two actions per team each year · Most cities wins</p></div>
+        <div><p class="eyebrow">HY2206 <span> / </span> CLASSROOM VERSION</p><h1>The Taiping Rebellion</h1><p class="brand-sub">12 years · Two actions per team each year · Most cities wins</p></div>
       </div>
       <nav class="main-nav" aria-label="Classroom tools">
         <button class="quiet-button" data-open="rules"><svg class="icon"><use href="#icon-book"/></svg>Quick rules</button>
@@ -89,7 +89,7 @@
       <div id="turn-status" class="turn-status"></div>
     </section>
     <section id="turn-banner" class="turn-banner" role="status" aria-live="polite" aria-atomic="true" aria-label="Current team and remaining actions"></section>
-    <div class="instruction-line"><span class="instruction-number">01</span> Choose an army <span class="instruction-divider">/</span><span class="instruction-number">02</span> Use up to 2 actions: move, attack or reinforce <span class="instruction-divider">/</span><span class="instruction-number">03</span> Next team <span class="offline-note"><i></i> v3 · 2 actions each year</span></div>
+    <div class="instruction-line"><span class="instruction-number">01</span> Choose an army <span class="instruction-divider">/</span><span class="instruction-number">02</span> Use up to 2 actions: move, attack or reinforce <span class="instruction-divider">/</span><span class="instruction-number">03</span> Next team <span class="offline-note"><i></i> Classroom · 2 actions each year</span></div>
     <main class="campaign-layout">
       <aside class="forces-column" aria-label="Factions and armies">
         <div class="section-heading"><h2>The two sides</h2><span>OPEN INFORMATION</span></div>
@@ -98,7 +98,7 @@
         <button class="undo-button" id="undo" disabled><svg class="icon"><use href="#icon-undo"/></svg>Undo last step</button>
       </aside>
       <section class="map-panel" aria-labelledby="map-title">
-        <div class="map-heading"><div><p class="eyebrow">LIVE CITY CONTROL</p><h2 id="map-title">Choose your next city.</h2></div><span class="map-edition">CLASSROOM v3<br><b>1853–1864</b></span></div>
+        <div class="map-heading"><div><p class="eyebrow">LIVE CITY CONTROL</p><h2 id="map-title">Choose your next city.</h2></div><span class="map-edition">CLASSROOM VERSION<br><b>1853–1864</b></span></div>
         <div class="route-tabs" role="group" aria-label="Highlight a strategic route">
           <button data-route="all" class="active">All routes</button><button data-route="north"><i class="route-dot north"></i>North</button><button data-route="west"><i class="route-dot west"></i>West</button><button data-route="east"><i class="route-dot east"></i>East</button>
         </div>
@@ -201,8 +201,7 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
       1864: { title: "The final siege", tag: "THE LAST CAMPAIGN YEAR", text: "In the historical campaign, Qing forces capture Tianjing in 1864 and the Taiping state collapses. Your game outcome may differ." }
     },
     sources: [
-      { title: "Group research and game proposal", url: "https://docs.google.com/document/d/16j91TfVDrVVotQ70x_1nGJ4lY7VBzhzW-0e7f9FlEqI/edit?tab=t.0", note: "Historical background and original proposal. This classroom edition uses simplified rules agreed for the presentation. The group's full historical research still needs its own bibliography." },
-      { title: "A diplomatic report of the fall of Nanking (1864)", url: "https://history.state.gov/historicaldocuments/frus1864p3/d433", note: "Primary source, Office of the Historian. Read the Qing and American diplomatic language critically: a contemporary report is also an interested account." },
+      { id: "nanking-report", title: "A diplomatic report of the fall of Nanking (1864)", url: "https://history.state.gov/historicaldocuments/frus1864p3/d433", note: "Primary source, Office of the Historian. Read the Qing and American diplomatic language critically: a contemporary report is also an interested account." },
       { title: "Second China War", url: "https://www.nam.ac.uk/explore/second-china-war", note: "National Army Museum. Context for Western pressure on the Qing in 1856–1860; useful alongside the later Shanghai intervention discussion." }
     ]
   };
@@ -698,13 +697,13 @@ window.TAIPING_IMAGE_ASSETS = {"taiping-troop":"data:image/png;base64,iVBORw0KGg
       setDialog('<h2 id="modal-title">The group\'s original maps.</h2><p class="dialog-intro">These historical scans are references. Live game ownership is shown by the coloured circles on the game board.</p><div class="atlas-picker"><button class="secondary-button" data-atlas="early">1851–1856</button><button class="secondary-button" data-atlas="late">1857 onwards</button></div><img class="source-map" src="' + mapAssets[late ? 'late' : 'early'] + '" alt="Original ' + (late ? 'later' : 'early') + ' campaign map supplied by the group">', 'HISTORICAL ATLAS', true);
     }
     if (view.type === 'journal') setDialog('<h2 id="modal-title">Game log.</h2><div class="full-log">' + game.log.slice().reverse().map(entry => '<div class="log-line"><span class="log-year">' + entry.year + '</span><span>' + esc(entry.message) + '</span></div>').join('') + '</div>', 'MOVES & CITY CONTROL');
-    if (view.type === 'settings') setDialog('<h2 id="modal-title">Host tools.</h2><p class="dialog-intro">Classroom v3: two actions per team per year. The current game stays in this browser tab. Copy a save before refreshing if you want to keep it.</p><div class="dialog-actions"><button class="primary-button" data-open="newconfirm">New game</button><button class="secondary-button" data-open="save">Save / restore text</button><button class="secondary-button" data-open="rules">Quick rules</button></div><div class="dialog-section"><h3>Sound check</h3><p>Sound starts on. Test the marching, battle and capture clips before presenting. The test does not use an action.</p><button class="secondary-button" id="test-sound">Test sound</button></div>', 'HOST TOOLS');
+    if (view.type === 'settings') setDialog('<h2 id="modal-title">Host tools.</h2><p class="dialog-intro">Classroom version: two actions per team per year. The current game stays in this browser tab. Copy a save before refreshing if you want to keep it.</p><div class="dialog-actions"><button class="primary-button" data-open="newconfirm">New game</button><button class="secondary-button" data-open="save">Save / restore text</button><button class="secondary-button" data-open="rules">Quick rules</button></div><div class="dialog-section"><h3>Sound check</h3><p>Sound starts on. Test the marching, battle and capture clips. The test does not use an action.</p><button class="secondary-button" id="test-sound">Test sound</button></div>', 'HOST TOOLS');
     if (view.type === 'newconfirm') setDialog('<h2 id="modal-title">Start again in 1853?</h2><p class="dialog-intro">This replaces the current game with the classroom starting position. Sound keeps its current setting.</p><div class="dialog-actions"><button class="primary-button" id="confirm-new">Start new game</button><button class="secondary-button" data-close>Keep playing</button><button class="secondary-button" data-open="save">Save current game first</button></div>', 'NEW GAME');
     if (view.type === 'save') {
-      setDialog('<h2 id="modal-title">Save or restore.</h2><label class="save-label" for="save-text">Campaign save text</label><textarea id="save-text" spellcheck="false"></textarea><p class="small muted">Classroom v3 saves only. Older treasury-rule saves need a new game.</p><div class="dialog-actions"><button class="primary-button" id="copy-save">Copy save text</button><button class="secondary-button" id="restore-save">Restore this text</button><button class="secondary-button" data-close>Return to map</button></div>', 'SAVE / RESTORE');
+      setDialog('<h2 id="modal-title">Save or restore.</h2><label class="save-label" for="save-text">Campaign save text</label><textarea id="save-text" spellcheck="false"></textarea><p class="small muted">Classroom version saves only. Load older-version saves in the Older version.</p><div class="dialog-actions"><button class="primary-button" id="copy-save">Copy save text</button><button class="secondary-button" id="restore-save">Restore this text</button><button class="secondary-button" data-close>Return to map</button></div>', 'SAVE / RESTORE');
       $("save-text").value = JSON.stringify(game);
     }
-    if (view.type === 'sources') setDialog('<h2 id="modal-title">History and game choices.</h2><p class="dialog-intro">The historical text and two map scans come from the group\'s working materials. The classroom rules are deliberately simplified and do not reproduce historical troop numbers or territorial control.</p><div class="notice"><b>Classroom setup:</b> both teams begin with 3 cities. Taiping has 10 strength and 2 reinforcement tokens; Qing has 12 strength and 3 tokens. Hefei begins with Taiping; Shanghai begins neutral. All cities count equally. Beijing offers Taiping an early victory because the northern route is long; Qing\'s nearby attack on Tianjing does not end the game.</div>' + D.sources.map(source => '<div class="source-item"><a href="' + source.url + '" target="_blank" rel="noopener">' + source.title + '</a><p>' + source.note + '</p></div>').join('') + '<p class="source-caption">Original map publication details should be supplied by the group. Audio uses the seven group-provided MP3 files.</p>', 'SOURCES & CLASSROOM BALANCE');
+    if (view.type === 'sources') setDialog('<h2 id="modal-title">History and game choices.</h2><p class="dialog-intro">Historical context for the campaign. The classroom rules are simplified and do not reproduce historical troop numbers or territorial control.</p><div class="notice"><b>Classroom setup:</b> both teams begin with 3 cities. Taiping has 10 strength and 2 reinforcement tokens; Qing has 12 strength and 3 tokens. Hefei begins with Taiping; Shanghai begins neutral. All cities count equally. Beijing offers Taiping an early victory because the northern route is long; Qing\'s nearby attack on Tianjing does not end the game.</div>' + D.sources.map(source => '<div class="source-item"><a href="' + source.url + '" target="_blank" rel="noopener">' + source.title + '</a><p>' + source.note + '</p></div>').join('') + '<p class="source-caption">Historical map scans and seven audio clips were supplied by the group.</p>', 'SOURCES & CLASSROOM BALANCE');
   }
   function perform(action) {
     const target = action === 'recruit' ? army().city : selectedCity;

@@ -64,8 +64,7 @@
       1864: { title: "The final siege", tag: "THE LAST CAMPAIGN YEAR", text: "In the historical campaign, Qing forces capture Tianjing in 1864 and the Taiping state collapses. Your game outcome may differ." }
     },
     sources: [
-      { title: "Group research and game proposal", url: "https://docs.google.com/document/d/16j91TfVDrVVotQ70x_1nGJ4lY7VBzhzW-0e7f9FlEqI/edit?tab=t.0", note: "Historical background and original proposal. This classroom edition uses simplified rules agreed for the presentation. The group's full historical research still needs its own bibliography." },
-      { title: "A diplomatic report of the fall of Nanking (1864)", url: "https://history.state.gov/historicaldocuments/frus1864p3/d433", note: "Primary source, Office of the Historian. Read the Qing and American diplomatic language critically: a contemporary report is also an interested account." },
+      { id: "nanking-report", title: "A diplomatic report of the fall of Nanking (1864)", url: "https://history.state.gov/historicaldocuments/frus1864p3/d433", note: "Primary source, Office of the Historian. Read the Qing and American diplomatic language critically: a contemporary report is also an interested account." },
       { title: "Second China War", url: "https://www.nam.ac.uk/explore/second-china-war", note: "National Army Museum. Context for Western pressure on the Qing in 1856–1860; useful alongside the later Shanghai intervention discussion." }
     ]
   };

@@ -8,16 +8,16 @@
 
 | 版本 | 主要规则 |
 | --- | --- |
-| [课堂新版](https://littlecrawler.github.io/hy2206-taiping-game/) | 展示时使用的版本。每年每队 2 次行动，移动自动占领，增援次数有限。1864 年城市多的一方获胜；太平军占领北京也可直接获胜。 |
-| [完整规则旧版](https://littlecrawler.github.io/hy2206-taiping-game/classic.html) | 每队 3 点行动，保留国库、年度收入、单独占领、招募、筑城和历史事件选择。1864 年结束前攻占对方首都获胜，否则平局。 |
+| [Classroom 课堂版（简化规则）](https://littlecrawler.github.io/hy2206-taiping-game/) | 展示时使用的版本。每年每队 2 次行动，移动自动占领，增援次数有限。1864 年城市多的一方获胜；太平军占领北京也可直接获胜。 |
+| [旧版（更多规则）](https://littlecrawler.github.io/hy2206-taiping-game/classic.html) | 每队 3 点行动，保留国库、年度收入、单独占领、招募、筑城和历史事件选择。1864 年结束前攻占对方首都获胜，否则平局。 |
 
 在游戏顶部可以切换版本。两版均涵盖 **1853–1864 年**，具体规则可在游戏内查看。切换前请先保存游戏；两版存档分别使用。
 
 ## 离线游玩 / 开发
 
-下载 **index.html**（新版）和 **classic.html**（旧版），放在同一文件夹，用 Chrome 或 Edge 打开。每个文件都能独立离线运行；两个文件放在一起即可切换。
+下载 **index.html**（Classroom 课堂版）和 **classic.html**（旧版），放在同一文件夹，用 Chrome 或 Edge 打开。每个文件都能独立离线运行；两个文件放在一起即可切换。
 
-源码分别位于 `src/classroom/` 和 `src/classic/`；共用地图、音频和图片集中在 `src/assets/`。旧版规则恢复自 [e03621f](https://github.com/littlecrawler/hy2206-taiping-game/commit/e03621f3a44aff898d0dd8c61222acbbc03cad27)。
+源码分别位于 `src/classroom/` 和 `src/classic/`；共用地图、音频和图片集中在 `src/assets/`。
 
 ```sh
 node scripts/build.mjs
